@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   Dimensions,
   Image,
   Platform,
-  PropTypes,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -16,7 +15,7 @@ import moment from 'moment';
 
 import Header from './common/Header';
 import Color from '../resource/color';
-import MapView from 'react-native-maps';
+// import MapView from 'react-native-maps';
 
 
 class PointView extends Component {
@@ -84,9 +83,9 @@ class PointView extends Component {
           </Image>
         </View>
         <View style={styles.pointDetailContainer}>
-          <MapView initialRegion={region} style={styles.map}>
+          {/*<MapView initialRegion={region} style={styles.map}>
             <MapView.Marker coordinate={location} title="ponto" description="Entrada"/>
-          </MapView>
+          </MapView>*/}
         </View>
       </ScrollView>
     );

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   Alert,
   DatePickerAndroid,
@@ -6,7 +6,6 @@ import {
   Linking,
   Modal,
   ProgressBarAndroid,
-  PropTypes,
   Text,
   TimePickerAndroid,
   ToastAndroid,

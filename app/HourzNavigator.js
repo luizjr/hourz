@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   BackAndroid,
   Navigator,
@@ -6,7 +6,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  PropTypes,
   View
 } from 'react-native';
 import {connect} from 'react-redux';

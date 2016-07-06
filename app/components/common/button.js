@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
-  Text, PropTypes, StyleSheet, View
+  Text, StyleSheet, View
 } from 'react-native';
 import Touchable from './Touchable';
 

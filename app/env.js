@@ -12,5 +12,5 @@ const firebaseUrl = Config.firebase.url;
  * @return {Firebase Object}
  */
 export default function getBaseRef() {
-    return new Firebase(firebaseUrl);
+    return {};
 };

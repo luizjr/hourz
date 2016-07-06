@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   ProgressBarAndroid,
-  PropTypes,
   StyleSheet,
   Text,
   View
