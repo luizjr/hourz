@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {
-  ProgressBarAndroid,
+  ActivityIndicator,
   StyleSheet,
   Text,
   View
@@ -13,7 +13,7 @@ class ProgressBar extends Component {
     return (
       <View style={styles.container}>
         <Text>{this.props.text}</Text>
-        <ProgressBarAndroid {...this.props.options} />
+        <ActivityIndicator {...this.props.options} />
       </View>
     );
   }
