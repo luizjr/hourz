@@ -9,13 +9,12 @@ import {
   Text,
   View
 } from 'react-native';
-import Reactotron from 'reactotron';
 
 import moment from 'moment';
 
 import Header from './common/Header';
 import Color from '../resource/color';
-// import MapView from 'react-native-maps';
+import MapView from 'react-native-maps';
 
 
 class PointView extends Component {
@@ -48,7 +47,16 @@ class PointView extends Component {
     const headerTitle = this.pointOptions[pointType] ? this.pointOptions[pointType].title : 'Ponto';
     const headerStyle = this.pointOptions[pointType] ? this.pointOptions[pointType].style : styles.header;
     const statusBarColor = this.pointOptions[pointType] ? this.pointOptions[pointType].color : '#303F9F';
-    const pointDate = moment(date, 'YYYY/MM/DD').format('DD/MM/YYYY');
+    const momentDate = moment(date, 'YYYY/MM/DD').hour(hour).minute(minute);
+    const pointDate = momentDate.format('DD/MM/YYYY');
+    const pointHour = momentDate.format('HH:mm');
+
+    // Gera o base64 da imagem
+    let base64string = `data:${picture.type};base64,${picture.data}`;
+
+    // precarrega a imagem
+    // let prefetchTask = Image.prefetch(base64string);
+
     const region = {
       ...location,
       latitudeDelta: 0.03,
@@ -72,20 +80,25 @@ class PointView extends Component {
         <View style={[styles.imageWrapper]}>
           <Image
             source={{
-              uri: picture.data
+              uri: base64string,
+              isStatic: true
             }}
             style={styles.image}
+            resizeMode="stretch"
           >
             <View style={styles.imageTitleWrapper}>
               <Text style={[styles.imageText, styles.dateText]}>{pointDate}</Text>
-              <Text style={[styles.imageText, styles.hourText]}>{`${hour}:${minute}`}</Text>
+              <Text style={[styles.imageText, styles.hourText]}>{pointHour}</Text>
             </View>
           </Image>
         </View>
         <View style={styles.pointDetailContainer}>
-          {/*<MapView initialRegion={region} style={styles.map}>
+
+
+        {/*MapView da biblioteca*/}
+          <MapView initialRegion={region} style={styles.map}>
             <MapView.Marker coordinate={location} title="ponto" description="Entrada"/>
-          </MapView>*/}
+          </MapView>
         </View>
       </ScrollView>
     );
@@ -126,7 +139,6 @@ const styles = StyleSheet.create({
   },
   image: {
     height: HALF_SCREEN_HEIGHT,
-    width: width,
     justifyContent: 'flex-end',
     paddingHorizontal: 10
   },

@@ -1,6 +1,10 @@
 var Config = {
   firebase: {
-    url: 'string'
+    // url: ''
+    apiKey: '',
+    authDomain: '',
+    databaseURL: '',
+    storageBucket: ''
   }
 }
 

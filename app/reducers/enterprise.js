@@ -14,6 +14,8 @@ export default function enterpriseReducer(state: List = initialState, action: Ac
   let newState = Immutable.fromJS(state);
 
   switch (action.type) {
+    case 'RESET_AUTH':
+      return initialState;
     case 'CLEAN_SAVED':
       return {
         ...state,
@@ -21,9 +23,6 @@ export default function enterpriseReducer(state: List = initialState, action: Ac
       }
 
     case 'CREATE_ENTERPRISE':
-
-      console.log('CREATE_ENTERPRISE');
-      console.log(action.payload);
       // pega o token da empresa
       let token = action.payload.token;
 
@@ -32,6 +31,36 @@ export default function enterpriseReducer(state: List = initialState, action: Ac
         .set('saved',true)
         .set('enterprises', newState.get('enterprises').push(action.payload))
         .toJS();
+
+    case 'DELETE_ENTERPRISE':
+      return newState.set(
+        'enterprises',
+        newState.get('enterprises').delete(
+          newState.get('enterprises').findIndex(
+            (value) => value.get('key') === action.payload.key
+          )
+        )
+      ).toJS();
+
+    case 'EDIT_ENTERPRISE':
+      let payload = Immutable.Map(action.payload);
+      let index = newState.get('enterprises').findIndex(
+        (value) => value.get('key') === payload.get('key')
+      );
+      console.log(newState.set(
+        'enterprises',
+        newState.get('enterprises').update(
+          index,
+          (value) => value.merge(payload)
+        )
+      ).toJS());
+      return newState.set(
+        'enterprises',
+        newState.get('enterprises').update(
+          index,
+          (value) => value.merge(payload)
+        )
+      ).toJS();
 
     case 'RENDER_ROW_ENTERPRISE':
       // cria uma nova data e insere a lista com o primeiro ponto do dia

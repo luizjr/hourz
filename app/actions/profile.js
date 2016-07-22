@@ -5,7 +5,9 @@ import type { Action, Profile, ImageData } from './types'
 
 type AuthResponseAction = (session: FBResponse) => Action;
 
-const fbase = getBaseRef();
+// depreciado
+// const fbase = getBaseRef();
+const database = getBaseRef().database();
 
 /**
  * função que cria uma action de response para o modulo auth
@@ -61,7 +63,7 @@ export function changeProfile(userId : string, profile: Profile): ThunkAction {
 
       try {
         // altera os dados do profile no firebase
-        let userRef = fbase.child('profile').child(userId);
+        let userRef = database.ref('profile').child(userId);
         await userRef.update({name: profile.name});
 
         dispatch(finishFetch());
@@ -97,7 +99,7 @@ export function changeImageUser(userId : string, picture: ImageData, profile: Pr
       try {
 
         // altera os dados do profile no firebase
-        let userRef = fbase.child('profile').child(userId);
+        let userRef = database.ref('profile').child(userId);
         await userRef.update({image: picture});
 
         dispatch(finishFetch());

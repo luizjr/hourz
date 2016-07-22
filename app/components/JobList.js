@@ -6,12 +6,12 @@ import {
   View
 } from 'react-native';
 
-import PointListItem from './PointListItem';
+import JobItem from './JobItem';
 
 /**
- * Lista de pontos batidos
+ * Lista de jobs batidos
  */
-class PointList extends Component {
+class JobList extends Component {
 
   /**
    * construtor do component
@@ -21,7 +21,7 @@ class PointList extends Component {
   constructor(props) {
     super(props);
 
-    // dataSource -> lista de pontos
+    // dataSource -> lista de jobs
     const dataSource = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2
     });
@@ -35,49 +35,46 @@ class PointList extends Component {
    * @return {void}
    */
   componentDidMount() {
-    // popula o dataSource com os pontos
+    // popula o dataSource com os jobs
+    console.log('jobs ',this.props.jobs);
     this.setState({
-      dataSource : this.state.dataSource.cloneWithRows(this.props.points)
+      dataSource : this.state.dataSource.cloneWithRows(this.props.jobs)
     });
   }
 
   componentWillReceiveProps(newProps) {
     this.setState({
-      dataSource : this.state.dataSource.cloneWithRows(newProps.points)
+      dataSource : this.state.dataSource.cloneWithRows(newProps.jobs)
     });
   }
 
   /**
    * renderiza a linha do listView
-   * @param  {object} point -> ponto
+   * @param  {object} job -> job
    * @param  {number} idSec -> id da sequência
    * @param  {number} idRow -> id da linha
-   * @return {ReactElement} PointListItem
+   * @return {ReactElement} JobItem
    */
-  renderRow(point, idSec, idRow) {
+  renderRow(job, idSec, idRow) {
     return (
-      <PointListItem key={point.key} point={point} />
+      <JobItem key={job.key} job={job} />
     );
   }
 
   /**
-   * renderiza a lista de pontos
+   * renderiza a lista de jobs
    * @return {ReactElement}
    */
   renderPointList() {
 
-      // caso não tenha ponto, retorna a mensagem
-      if(this.props.points.length === 0) {
+      // caso não tenha job, retorna a mensagem
+      if(this.props.jobs.length === 0) {
         return (
           <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
+            style={styles.empty}
           >
             <Text style={{fontSize: 20}}>
-              Você ainda não bateu o ponto Hoje!
+              Você ainda não possui emprego.
             </Text>
           </View>
         );
@@ -107,18 +104,24 @@ class PointList extends Component {
 }
 
 // Props do componente
-PointList.propTypes = {
-  points: PropTypes.array.isRequired
+JobList.propTypes = {
+  jobs: PropTypes.array.isRequired
 }
 
 // Estilo do componente
 var styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    listView: {
-      backgroundColor: '#F5FCFF'
-    }
+  container: {
+      flex: 1
+  },
+  empty: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+
+  },
+  listView: {
+    backgroundColor: '#F5FCFF'
+  }
 });
 
-export default PointList;
+export default JobList;

@@ -1,11 +1,13 @@
 'use strict';
 
 import React, {
-  Component
+  Component,
+  PropTypes
 } from 'react';
 
 import {
   View,
+  Alert,
   Platform,
   ActionSheetIOS,
   Dimensions,
@@ -15,7 +17,8 @@ import {
 
 import {
   cleanSaved,
-  loadEnterprises
+  loadEnterprises,
+  deleteEnterprise
 } from '../../../actions/enterprise';
 
 import {
@@ -28,14 +31,57 @@ import EnterpriseList     from '../../../components/EnterpriseList';
 
 class MyEnterprise extends Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
         saved: false,
         isFetching: false,
         user: null
     };
+
+    this._editEnterprise = this._editEnterprise.bind(this);
+    this._viewEnterprise = this._viewEnterprise.bind(this);
+    this._deleteEnterprise = this._deleteEnterprise.bind(this);
+
+  }
+
+  /**
+   * retorna os valores de context para os componentes filhos
+   * @return {Object}
+   */
+  getChildContext() {
+    return {
+      onEditPress: this._editEnterprise,
+      onViewPress: this._viewEnterprise,
+      onDeletePress: this._deleteEnterprise
+    }
+  }
+
+  _editEnterprise(enterprise) {
+    this.props.navigator.push(
+      {name: 'edit_enterprise', title: 'Editar empresa', enterprise: enterprise}
+    );
+  }
+
+  _viewEnterprise(enterprise) {
+    alert('Ver empresa ' + enterprise.name);
+  }
+
+  _deleteEnterprise(enterprise) {
+    Alert.alert(
+        'Deletar empresa',
+        'Deseja remover esta empresa?', [{
+            text: 'Cancelar',
+            onPress: () => {},
+            style: 'cancel'
+        }, {
+            text: 'OK',
+            onPress: () => {
+                this.props.deleteEnterprise(enterprise);
+            }
+        }
+    ]);
 
   }
 
@@ -52,12 +98,6 @@ class MyEnterprise extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-
-    if(nextProps.user.error) {
-      this.setState({
-        errorMessage: nextProps.user.error
-      });
-    }
     this.setState({
       isFetching: nextProps.fetchData.isFetching
     });
@@ -75,24 +115,30 @@ class MyEnterprise extends Component {
 
     return (
       <View style={styles.container}>
-          {/**   */}
-          <EnterpriseList enterprises={this.props.enterprises.enterprises} />
+          <EnterpriseList enterprises={this.props.enterprises} />
       </View>
     );
   }
 
 }
 
+MyEnterprise.childContextTypes = {
+  onEditPress: PropTypes.func,
+  onViewPress: PropTypes.func,
+  onDeletePress: PropTypes.func
+}
+
 var styles = HBStyleSheet.create({
   container: {
-    height: 486
+    flex: 1,
+    justifyContent: 'center'
   }
 });
 
 function mapStateToProps(state) {
     return {
       user: state.user,
-      enterprises: state.enterpriseReducer,
+      enterprises: state.enterpriseReducer.enterprises,
       fetchData: state.fetchData
     };
 }
@@ -100,7 +146,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     cleanSaved: () => dispatch(cleanSaved()),
-    loadEnterprises: (userId) => dispatch(loadEnterprises(userId))
+    loadEnterprises: (userId) => dispatch(loadEnterprises(userId)),
+    deleteEnterprise: (enterprise) => dispatch(deleteEnterprise(enterprise))
   }
 }
 

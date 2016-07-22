@@ -18,7 +18,7 @@ import {
 
 import {
   cleanSaved,
-  createEnterprise
+  editEnterprise
 } from '../../actions/enterprise';
 
 import ProgressBar              from '../../components/common/ProgressBar';
@@ -28,7 +28,7 @@ import TextButton               from '../../components/common/TextButton';
 import BackButtonIcon           from '../../components/common/BackButtonIcon';
 import Color                    from '../../resource/color';
 
-class newEnterprise extends Component {
+class EditEnterprise extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -40,6 +40,13 @@ class newEnterprise extends Component {
             isFetching: false
         };
         this.onPress = this.onPress.bind(this);
+    }
+    componentDidMount() {
+      this.setState(
+        {
+          name: this.props.route.enterprise.name
+        }
+      );
     }
 
 
@@ -72,15 +79,15 @@ class newEnterprise extends Component {
     onPress() {
 
         let enterprise = {
-          name: this.state.name,
-          owner: this.props.user.id
+          ...this.props.route.enterprise,
+          name: this.state.name
         };
 
         this.setState({
           isFetching: true
         });
 
-        this.props.createEnterprise(enterprise);
+        this.props.editEnterprise(enterprise);
     }
 
     dismiss() {
@@ -121,7 +128,7 @@ class newEnterprise extends Component {
                   <TextButton
                     style={styles.buttonSubmit}
                     textStyle={styles.buttonSubmitText}
-                    title="CADASTRAR"
+                    title="EDITAR"
                     onPress={this.onPress}
                   />
                 </View>
@@ -133,6 +140,9 @@ class newEnterprise extends Component {
     }
 
   }
+
+
+
 
 var styles = HBStyleSheet.create({
   container: {
@@ -212,8 +222,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     cleanSaved: () => dispatch(cleanSaved()),
-    createEnterprise: (enterprise) => dispatch(createEnterprise(enterprise))
+    editEnterprise: (enterprise) => dispatch(editEnterprise(enterprise))
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(newEnterprise);
+export default connect(mapStateToProps, mapDispatchToProps)(EditEnterprise);

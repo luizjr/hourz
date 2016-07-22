@@ -24,14 +24,13 @@
  */
 'use strict';
 
-var React = require('React');
-var StyleSheet = require('F8StyleSheet');
-var { Text } = require('F8Text');
-var TouchableOpacity = require('TouchableOpacity');
-var View = require('View');
-var Platform = require('Platform');
+import React, {Component} from 'react';
+import { View, Platform } from 'react-native';
+import {create} from './HBStyleSheet';
+import { HText } from './F8Text';
+import Touchable from './Touchable';
 
-class F8SegmentedControl extends React.Component {
+class F8SegmentedControl extends Component {
   props: {
     values: Array<string>;
     selectionColor: ?string;
@@ -60,7 +59,7 @@ class F8SegmentedControl extends React.Component {
   }
 }
 
-class Segment extends React.Component {
+class Segment extends Component {
   props: {
     value: string;
     isSelected: boolean;
@@ -85,22 +84,26 @@ class Segment extends React.Component {
     }
 
     return (
-      <TouchableOpacity
+      <Touchable
         accessibilityTraits={accessibilityTraits}
         activeOpacity={0.8}
         onPress={this.props.onPress}
         style={[styles.button, selectedButtonStyle]}>
-        <Text style={[styles.label, deselectedLabelStyle]}>
-          {title}
-        </Text>
-      </TouchableOpacity>
+      <View>
+
+          <HText style={[styles.label, deselectedLabelStyle]}>
+            {title}
+          </HText>
+
+      </View>
+      </Touchable>
     );
   }
 }
 
 const HEIGHT = 32;
 
-var styles = StyleSheet.create({
+var styles = create({
   container: {
     flexDirection: 'row',
     backgroundColor: 'transparent',

@@ -6,7 +6,32 @@ import {getTime} from '../resource/timezonedb';
 import getBaseRef from '../env';
 import type { Action, ImageData, Point, PointType, ThunkAction } from './types'
 
-const fbase = getBaseRef();
+// depreciado
+// const fbase = getBaseRef();
+
+const database = getBaseRef().database();
+const storage = getBaseRef().storage().ref();
+
+const b64toBlob = (b64Data, contentType='', sliceSize=1024) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+}
 
 function registerPoint(point: Point): Action {
   return {
@@ -22,21 +47,46 @@ function reportListPoint(points: Array<Point>): Action {
   }
 }
 
-
+/**
+ * Carrega os pontos de uma determinada data
+ * @param  {string} date   [description]
+ * @param  {Number} userId [description]
+ * @return {void}        [description]
+ */
 export function loadPoints(date, userId) {
   return async dispatch => {
     dispatch(initFetch('Carregando seus dados...'));
     try {
-      let path = `points/${userId}/${date}`
-      let snapshot = await fbase.child(path)
-        .once('value');
-      console.log(path);
+      let pointRef = database.ref('points');
+      let snapshot = await pointRef
+        .orderByChild('userDate')
+        .equalTo(`${userId}+${date}`)
+        .once("value");
+      console.log(snapshot.val());
       if(snapshot.exists()) {
-        let points = snapshot.val();
-        for(let key in points) {
-          dispatch(registerPoint(points[key]));
-        }
-      };
+        snapshot.forEach(child => {
+          dispatch(registerPoint(child.val()));
+        });
+      }
+      // console.log(snapshot.orderByChild('date'));
+      let path = `profile/${userId}/pointss/${date}`;
+      let profileSnapshot = await database.ref(path)
+        .once('value');
+      if(profileSnapshot.exists()) {
+        profileSnapshot.forEach(child => {
+          let currentPoint = child.key;
+
+        });
+      }
+      console.log(profileSnapshot.val());
+      // let snapshot = await database.ref(path)
+      //   .once('value');
+      // if(snapshot.exists()) {
+      //   let points = snapshot.val();
+      //   for(let key in points) {
+      //     dispatch(registerPoint(points[key]));
+      //   }
+      // }
     } catch (e) {
       console.log(e.message);
     } finally {
@@ -53,7 +103,7 @@ export function loadAllPoints(year,month,userId) {
     dispatch(initFetch('Carregando seus dados...'));
     try {
       let path = `points/${userId}/${year}/${month}`
-      let snapshot = await fbase.child(path)
+      let snapshot = await database.ref(path)
         .once('value');
       if(snapshot.exists()) {
         let points = snapshot.val();
@@ -75,51 +125,75 @@ export function loadAllPoints(year,month,userId) {
 
 export function hitPoint(pointType: PointType, picture: ImageData, userId: string): ThunkAction {
   return dispatch => {
+
     dispatch(initFetch('Buscando Geolocalização...'));
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         let {latitude, longitude} = position.coords;
+        dispatch(initFetch('Buscando a hora da rede...'));
+        let time = moment();
         try {
-          dispatch(initFetch('Buscando a hora da rede...'));
           let timezone = await getTime({latitude, longitude});
           // converte o timestamp
-          let time = moment.unix(timezone.timestamp).add(3, 'hour');
-          let date = time.format('YYYY/MM/DD');
-
-          // firebase
-          let pointRef = fbase.child('points').push();
-          let pointKey = pointRef.key();
+          time = moment.unix(timezone.timestamp).add(3, 'hour');
 
 
-          let point = {
-            key: pointKey,
-            pointType,
-            location: {latitude, longitude},
-            date,
-            hour: time.hour(),
-            minute: time.minute(),
-            createdAt: time.toISOString(),
-            picture,
-            userId
-          };
-
-          let userPath = `profile/${userId}/points/${date}/${pointKey}`
-          let userRef = fbase.child(userPath);
-
-          try {
-            dispatch(initFetch('Salvando os dados...'));
-            await pointRef.set(point);
-            await userRef.set(true)
-            dispatch(registerPoint(point));
-            ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
-          } catch (e) {
-            ToastAndroid.show('Erro ao salvar os dados.', ToastAndroid.SHORT);
-          }
         } catch (e) {
-          console.log(e.message);
           ToastAndroid.show('Erro ao receber a hora da rede.', ToastAndroid.SHORT);
         } finally {
-          dispatch(finishFetch());
+          let date = time.format('YYYY/MM/DD');
+          // firebase
+          let pointRef = database.ref('points').push();
+          let pointKey = pointRef.key;
+          dispatch(initFetch('Salvando Imagem...'));
+          try {
+            console.log(picture);
+            let base64string = `data:${picture.type};base64,${picture.data}`;
+            console.log(base64string);
+            // var reader  = new FileReader();
+            // reader.onload = (event) => {
+            //
+            // }
+            // reader.readAsDataURL(b64toBlob(picture.base64, 'image/jpeg'));
+            // let uploadTask = storage.child(`${date}/${pointKey}.jpg`).put(event.target.result);
+            // uploadTask.on('state_changed', (snapshot) => {
+            //   console.log(snapshot);
+            // }, (err) => {
+            //   console.log(err);
+            // }, () => {
+            //   console.log("completo");
+            // });
+            let point = {
+              key: pointKey,
+              pointType,
+              location: {latitude, longitude},
+              date,
+              hour: time.hour(),
+              minute: time.minute(),
+              createdAt: time.toISOString(),
+              picture,
+              userId,
+              userDate: `${userId}+${date}`
+            };
+
+            let userPath = `profile/${userId}/points/${date}/${pointKey}`
+            let userRef = database.ref(userPath);
+
+            try {
+              dispatch(initFetch('Salvando os dados...'));
+              await pointRef.set(point);
+              await userRef.set(true);
+              dispatch(registerPoint(point));
+              ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
+            } catch (e) {
+              ToastAndroid.show('Erro ao salvar os dados.', ToastAndroid.SHORT);
+            }
+          } catch (e) {
+            console.log(e.message);
+          } finally {
+            dispatch(finishFetch());
+          }
+
         }
       },
       (error) => {
@@ -146,16 +220,18 @@ export function editPoint(selectedPoint, observation, userId) {
       // let pointAfter = !isNaN(indexAfter) ? points.get(indexAfter).toJS() : null;
 
 
+      // Pega a hora do android
       const {action, hour, minute} = await TimePickerAndroid.open({
         hour: selectedPoint.hour,
         minute: selectedPoint.minute,
-        is24Hour: true, // Will display '2 PM'
+        is24Hour: true,
       });
+
       if (action !== TimePickerAndroid.dismissedAction) {
 
         let time = moment();
         let path = `points/${userId}/${selectedPoint.date}/${selectedPoint.key}`;
-        let pointRef = fbase.child(path);
+        let pointRef = database.ref(path);
         let point = {
           ...selectedPoint,
           hour,

@@ -11,6 +11,7 @@ export type Profile = {
 }
 
 export type Enterprise = {
+  key: string,
   name: string,
   owner: string,
   token: string

@@ -54,8 +54,8 @@ class PointEditModal extends Component {
     return (
       <Modal
         ref="modal"
-        animated={false}
-        transparent={false}
+        animationType="fade"
+        transparent={true}
         visible={this.props.isVisible}
         onRequestClose={() => this.close()}
       >
@@ -110,6 +110,7 @@ var styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: 'rgba(154, 154, 154, 0.55)',
     padding: 20
   },
   innerContainer: {

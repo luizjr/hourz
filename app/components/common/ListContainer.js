@@ -23,7 +23,7 @@ import F8Header             from '../../components/common/Header';
 import F8SegmentedControl   from 'F8SegmentedControl';
 import ParallaxBackground   from './ParallaxBackground';
 import * as HBStyleSheet    from '../../components/common/HBStyleSheet';
-import { Text }             from 'F8Text';
+import { HText }             from 'F8Text';
 import ViewPager            from './ViewPager';
 
 type Props = {
@@ -62,8 +62,8 @@ class RelayLoading extends Component {
       return child;
     }
     return (
-    <Text>
-    </Text>
+    <HText>
+    </HText>
     );
   }
 
@@ -190,9 +190,9 @@ class ListContainer extends Component {
       return this.props.parallaxContent;
     }
     return (
-      <Text style={styles.parallaxText}>
+      <HText style={styles.parallaxText}>
         {this.props.title}
-      </Text>
+      </HText>
     );
   }
 

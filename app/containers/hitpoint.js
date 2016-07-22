@@ -3,7 +3,6 @@ import {
   Dimensions,
   Linking,
   ListView,
-  Modal,
   ProgressBarAndroid,
   Text,
   ToastAndroid,

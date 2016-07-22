@@ -6,7 +6,7 @@ import {
   ToolbarAndroid,
   View
 } from 'react-native';
-import Reactotron from 'reactotron';
+
 
 import { connect } from 'react-redux';
 import ProgressBar from '../../components/common/ProgressBar';
@@ -184,6 +184,7 @@ var styles = HBStyleSheet.create({
   input: {
       padding: 4,
       height: 40,
+      width: 300,
       borderColor: 'gray',
       borderWidth: 1,
       borderRadius: 5,

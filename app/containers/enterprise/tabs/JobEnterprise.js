@@ -19,6 +19,7 @@ import * as HBStyleSheet  from '../../../components/common/HBStyleSheet';
 import { connect }        from 'react-redux';
 import ActButton          from '../../../components/common/ActButton';
 import Color              from '../../../resource/color'; //Importa a palheta de cores
+import JobList            from '../../../components/JobList';
 
 class JobEnterprise extends Component {
   constructor() {
@@ -33,13 +34,7 @@ class JobEnterprise extends Component {
 
     return (
       <View style={styles.container}>
-        <View>
-          <Text style={styles.msgEmpty}>
-            Empresas que tenho vinculo trabalhista
-          </Text>
-        </View>
-
-
+          <JobList jobs={[]} />
       </View>
     );
   }
@@ -48,14 +43,8 @@ class JobEnterprise extends Component {
 
 var styles = HBStyleSheet.create({
   container: {
-    flex: 1
-  },
-  msgEmpty: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-
+    justifyContent: 'center'
   }
 });
 

@@ -12,8 +12,8 @@ import MenuItem from '../components/MenuItem';
 import Home from './home';
 import Profile from './profile';
 import TabsEnterprise from './enterprise/TabsEnterprise';
-import Settings from './settings';
-import Report from './report';
+// import Settings from './settings';
+// import Report from './report';
 import { switchTab } from '../actions/navigation';
 import { loadPoints } from '../actions/point';
 
@@ -65,10 +65,10 @@ class SideMenu extends Component {
         return <Profile navigator={this.props.navigator} />
      case 'enterprise':
        return <TabsEnterprise navigator={this.props.navigator} />
-     case 'report':
-        return <Report navigator={this.props.navigator} />
-      case 'settings':
-        return <Settings navigator={this.props.navigator} />
+    //  case 'report':
+    //     return <Report navigator={this.props.navigator} />
+      // case 'settings':
+      //   return <Settings navigator={this.props.navigator} />
       default:
         return <Home navigator={this.props.navigator} />
     }
@@ -143,7 +143,7 @@ class SideMenu extends Component {
             selected={this.props.tab === 'enterprise'}
             onPress={this.onTabSelect.bind(this, 'enterprise')} />
 
-          <MenuItem
+          {/*<MenuItem
             title="Relatórios"
             icon="equalizer"
             selected={this.props.tab === 'report'}
@@ -153,7 +153,7 @@ class SideMenu extends Component {
             title="Configurações"
             icon="settings"
             selected={this.props.tab === 'settings'}
-            onPress={this.onTabSelect.bind(this, 'settings')} />
+            onPress={this.onTabSelect.bind(this, 'settings')} />*/}
 
         <MenuItem
           title="Sair"

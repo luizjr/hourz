@@ -1,7 +1,10 @@
 import {
     fetch
 } from 'react-native';
-import { initFetch, finishFetch } from './fetchData';
+import {
+    initFetch,
+    finishFetch
+} from './fetchData';
 import getBaseRef from '../env';
 
 
@@ -18,6 +21,20 @@ type AuthErrorAction = (error: string) => Action;
 
 // Erros de autenticação/ registro de usuário do firebase
 const fbAuthErrors = {
+    "auth/app-deleted": "Aplicação não encontrada.",
+    "auth/app-not-authorized": "App não autorizada.",
+    "auth/argument-error": "Argumentos incorretos",
+    "auth/invalid-api-key": "Api Key inválido.",
+    "auth/invalid-user-token": "Token de usuário inválido",
+    "auth/network-request-failed": "Erro de conexão com a rede",
+    "auth/operation-not-allowed": "Operação não permitida",
+    "auth/user-disabled": "usuário desabilitado",
+    "auth/user-token-expired": "Sessão expirada",
+    "auth/account-exists-with-different-credential": "Usuário com estas credenciais já está cadastrado",
+    "auth/email-already-in-use": "Usuário com este email já foi cadastrado",
+    "auth/invalid-email": "Email não válido",
+    "auth/user-not-found": "Usuário não encontrado",
+    "auth/wrong-password": "Senha incorreta.",
     AUTHENTICATION_DISABLED: 'No momento o banco de dados está indisponível.',
     EMAIL_TAKEN: 'Este email já está sendo usado.',
     INVALID_ARGUMENTS: 'Argumentos inválidos.',
@@ -27,9 +44,14 @@ const fbAuthErrors = {
     INVALID_USER: 'O usuário não existe.'
 }
 
-// referencia do firebase
-const baseRef = getBaseRef();
+// depreciado: referencia do firebase
+// const baseRef = getBaseRef();
 
+// Autenticação do firebase
+const auth = getBaseRef().auth();
+
+// Database do firebase
+const database = getBaseRef().database();
 
 /**
  * função que cria uma action de request para o modulo auth
@@ -78,57 +100,61 @@ function authError(type: string): AuthErrorAction {
  * @return {function} -> action que passa pela middleware redux-thunk
  */
 export function signIn(user: User): ThunkAction {
-  return async (dispatch) => {
-    // cria as actions
-    const signin = authResponse('SIGNIN');
-    const error = authError('SIGNIN_ERROR');
+    return async(dispatch) => {
+        // cria as actions
+        const signin = authResponse('SIGNIN');
+        const error = authError('SIGNIN_ERROR');
 
-    // dispara a action de request
-    dispatch(initFetch('Conectando...'));
-    dispatch(resetAuth());
-    try {
-      // faz o login no firebase e dispara a action de signin
-      let authData = await baseRef.authWithPassword(user);
+        // dispara a action de request
+        dispatch(initFetch('Conectando...'));
+        dispatch(resetAuth());
+        try {
+            // faz o login no firebase e dispara a action de signin
 
-      console.log(user);
-      console.log(authData.uid);
+            let authData = await auth.signInWithEmailAndPassword(user.email, user.password);
 
-      let userRef = baseRef.child('profile').child(authData.uid);
-      userRef.once("value", function(snapshot) {
+            // let authData = await baseRef.authWithPassword(user);
 
-        let mUser = {
-          uid: authData.uid,
-          email: authData.password.email
+            console.log(authData);
+
+            let userRef = database.ref('profile').child(authData.uid);
+            userRef.once('value')
+                .then(function(snapshot) {
+                    let user = {
+                        uid: authData.uid,
+                        email: authData.email
+                    }
+
+                    let profile = {
+                        name: snapshot.val().name,
+                        image: snapshot.val().image
+                    }
+
+                    let data = {
+                        user: user,
+                        profile: profile
+                    }
+
+                    console.log(data);
+
+                    dispatch(signin(data));
+                    dispatch(finishFetch());
+
+                }).catch(function(errorObject) {
+                    console.log(errorObject);
+                    dispatch(error(errorObject));
+                    dispatch(finishFetch());
+                });
+
+        } catch (err) {
+            console.log(err);
+            // Dispara o erro, caso não complete o login
+            dispatch(error(err));
+            dispatch(finishFetch());
         }
 
-        let mProfile = {
-          name: snapshot.val().name,
-          image: snapshot.val().image
-        }
 
-        let mData = {
-          user: mUser,
-          profile: mProfile
-        }
-
-        console.log(mData);
-
-        dispatch(signin(mData));
-        dispatch(finishFetch());
-
-      }, function (errorObject) {
-        dispatch(error(errorObject));
-        dispatch(finishFetch());
-      });
-
-    } catch (err) {
-      // Dispara o erro, caso não complete o login
-      dispatch(error(err));
-      dispatch(finishFetch());
     }
-
-
-  }
 }
 
 /**
@@ -137,7 +163,7 @@ export function signIn(user: User): ThunkAction {
  * @return {function} -> action que passa pela middleware redux-thunk
  */
 export function signUp(user: User): ThunkAction {
-    return async (dispatch) => {
+    return async(dispatch) => {
 
         //cria as actions
         const signup = authResponse('SIGNUP');
@@ -147,27 +173,36 @@ export function signUp(user: User): ThunkAction {
         dispatch(resetAuth());
 
         try {
-          // faz o registro no firebase e dispara a action de signup
-          let authData = await baseRef.createUser(user);
+            // faz o registro no firebase e dispara a action de signup
+            let authData = await auth.createUserWithEmailAndPassword(
+                user.email, user.password
+            );
 
-          // Cria o filho do tipo profile
-          let userRef = baseRef.child('profile').child(authData.uid);
+            // Cria o filho do tipo profile
+            let userRef = database.ref('profile').child(authData.uid);
 
-          // Define como sera o objeto profile a ser salvo
-          let profile = {
-            name: user.name
-          };
+            // Define como sera o objeto profile a ser salvo
+            let profile = {
+                name: user.name
+            };
 
-          // Salva o profile
-          await userRef.set(profile);
+            try {
+              // Salva o profile
+              await userRef.set(profile);
+              dispatch(signup(authData));
+            } catch (err) {
+              console.log('erro');
+            }
 
-          dispatch(signup(authData));
+
+
         } catch (err) {
-          // Dispara o erro, caso não complete o registro
-          dispatch(error(err));
+            // Dispara o erro, caso não complete o registro
+            dispatch(error(err));
+            console.log(err);
         } finally {
-          // remove a tela de loading
-          dispatch(finishFetch());
+            // remove a tela de loading
+            dispatch(finishFetch());
         }
     }
 }

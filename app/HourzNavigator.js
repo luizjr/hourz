@@ -14,6 +14,7 @@ import SignUp from './containers/authentication/signup';
 import SideMenu from './containers/sidemenu';
 import PointView from './components/PointView';
 import NewEnterprise from './containers/enterprise/newEnterprise';
+import EditEnterprise from './containers/enterprise/editEnterprise';
 
 /**
  * Componente que cria o navigator e implementa as funções
@@ -154,8 +155,10 @@ class HourzNavigator extends Component {
             return (<SideMenu route={route} navigator={navigator} />);
           case 'pointDetail':
             return (<PointView route={route} navigator={navigator} />);
-          case 'new_report':
+          case 'new_enterprise':
              return <NewEnterprise route={route} navigator={navigator} />
+           case 'edit_enterprise':
+              return <EditEnterprise route={route} navigator={navigator} />
           default:
             // se o usuário está logado, retorna o sidemenu,
             // senão, retorna a tela de login

@@ -4,7 +4,6 @@ import {
   DatePickerAndroid,
   Dimensions,
   Linking,
-  Modal,
   ProgressBarAndroid,
   Text,
   TimePickerAndroid,
@@ -27,8 +26,11 @@ import ProgressBar from '../components/common/ProgressBar';
 import {editPoint, hitPoint, loadPoints} from '../actions/point';
 import {setCurrentDate} from '../actions/currentDate';
 import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
+import getBaseRef from '../env';
+// import { b64toBlob } from '../misc/imageWrapper';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
+const storage = getBaseRef().storage().ref();
 
 /**
  * Container da tela Home
@@ -162,13 +164,27 @@ class Home extends Component {
           });
           return;
         }
+        // console.log(response);
+        // this.setState({
+        //   isFetching: false
+        // });
+        //
+        // let blob = b64toBlob(response.data, response.type);
+        // console.log(blob);
+        // let uploadTask = storage.child(
+        //   `${this.props.user.id}/${response.fileName}.jpg`
+        // ).put(blob, {contentType: response.type});
+        // uploadTask.on('state_changed', (snapshot) => {
+        //   console.log(snapshot);
+        // }, (err) => {
+        //   console.log(err);
+        // }, () => {
+        //   console.log("completo");
+        // });
 
         // action de bater o Ponto
         // @see app/actions/point.js
-        this.props.hitPoint(type, {
-          uri: response.uri,
-          data: 'data:image/jpeg;base64,' + response.data
-        }, this.props.user.id);
+        this.props.hitPoint(type, response, this.props.user.id);
       });
     }
 

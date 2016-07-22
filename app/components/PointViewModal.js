@@ -33,7 +33,7 @@ class PointViewModal extends Component {
     let time = moment({hour, minute}).format('HH:mm');
     return (
       <Modal
-        animated={false}
+        animationType="slide"
         transparent={false}
         visible={this.props.isVisible}
         onRequestClose={()=>this.props.onRequestClose()}

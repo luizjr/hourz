@@ -137,6 +137,9 @@ android {
 }
 
 dependencies {
+//    compile project(':react-native-maps')
+    compile 'com.airbnb.android:react-native-maps:0.6.0'
+    compile project(':react-native-android-tablayout')
     compile project(':react-native-image-picker')
     compile project(':react-native-vector-icons')
     compile project(':react-native-orientation')
@@ -151,6 +154,3 @@ task copyDownloadableDepsToLibs(type: Copy) {
   from configurations.compile
   into 'libs'
 }
-
-// React-native-vector-icons
-// apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

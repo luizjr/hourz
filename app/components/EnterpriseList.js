@@ -36,7 +36,6 @@ class EnterpriseList extends Component {
    */
   componentDidMount() {
     // popula o dataSource com os pontos
-    console.log('enterprises ',this.props.enterprises);
     this.setState({
       dataSource : this.state.dataSource.cloneWithRows(this.props.enterprises)
     });
@@ -71,14 +70,10 @@ class EnterpriseList extends Component {
       if(this.props.enterprises.length === 0) {
         return (
           <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
+            style={[styles.empty]}
           >
             <Text style={{fontSize: 20}}>
-              Você ainda não bateu o ponto Hoje!
+              Você ainda não possui uma empresa.
             </Text>
           </View>
         );
@@ -86,10 +81,17 @@ class EnterpriseList extends Component {
 
       // retorna a ListView
       return (
-          <ListView
+        <ListView
             dataSource={this.state.dataSource}
             renderRow={this.renderRow.bind(this)}
             style={styles.listView}
+            //renderSeparator={(secId, rowId) => (
+            //  <View
+            //  style={{
+            //    borderWidth:2,
+            //    borderColor: '#424242'
+            //  }} />
+            //)}
           />
       );
   }
@@ -116,6 +118,12 @@ EnterpriseList.propTypes = {
 var styles = StyleSheet.create({
     container: {
         flex: 1
+    },
+    empty: {
+      flex: 1,
+      justifyContent: 'center',
+      alignSelf: 'center'
+
     },
     listView: {
       backgroundColor: '#F5FCFF'

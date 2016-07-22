@@ -53,24 +53,28 @@ class SignIn extends Component {
               </View>
 
               <View style={styles.body}>
+                <View style={styles.formContainer}>
+                  <Text style={styles.label}>Email:</Text>
+                  <View style={styles.textInputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      value={this.state.email}
+                      onChangeText={(text) => this.setState({email: text})}
+                      keyboardType="email-address"
+                    />
+                  </View>
+                  <Text style={styles.label}>Senha:</Text>
+                  <View style={styles.textInputContainer}>
+                    <TextInput
+                      secureTextEntry={true}
+                      style={styles.input}
+                      value={this.state.password}
+                      onChangeText={(text) => this.setState({password: text})}
+                    />
+                  </View>
 
-                <Text style={styles.label}>Email:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={this.state.email}
-                  onChangeText={(text) => this.setState({email: text})}
-                  keyboardType="email-address"
-                />
-
-                <Text style={styles.label}>Senha:</Text>
-                <TextInput
-                  secureTextEntry={true}
-                  style={styles.input}
-                  value={this.state.password}
-                  onChangeText={(text) => this.setState({password: text})}
-                />
-
-                <Text style={styles.msgError} >{this.props.user.error}</Text>
+                  <Text style={styles.msgError} >{this.props.user.error}</Text>
+                </View>
 
                 <View style={styles.buttonSigninWrapper}>
                   <TextButton
@@ -142,9 +146,20 @@ const styles = StyleSheet.create({
         width: 300,
         alignItems: 'center'
     },
+    formContainer: {
+      width: 300,
+      flexDirection: 'column',
+      alignItems: 'stretch'
+    },
+    textInputContainer: {
+
+    },
     input: {
         padding: 4,
         height: 40,
+        width: 300,
+        flex: 1,
+        flexDirection: 'row',
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 5,

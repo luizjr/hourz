@@ -1,6 +1,8 @@
 package com.hourz;
 
 import com.facebook.react.ReactActivity;
+import com.xebia.reactnative.TabLayoutPackage;
+import com.airbnb.android.react.maps.MapsPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.github.yamill.orientation.OrientationPackage;
@@ -37,10 +39,12 @@ public class MainActivity extends ReactActivity {
     @Override
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
-            new MainReactPackage(),
-            new ImagePickerPackage(),
-            new VectorIconsPackage(),
-            new OrientationPackage(this)
+                new MainReactPackage(),
+                new TabLayoutPackage(),
+                new ImagePickerPackage(),
+                new VectorIconsPackage(),
+                new MapsPackage(this),
+                new OrientationPackage(this)
         );
     }
 }
