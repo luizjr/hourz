@@ -8,9 +8,8 @@ module.exports = {
     AccentColor: '#607D8B',
     PrimaryText: '#212121',
     DarkPrimaryText: '#032250',
-    SecondText: '#727272',
+    SecondText: '#757575',
     DividerColor: '#B6B6B6',
-    DimGray: '#aeacac'
-
+    DimGray: '#aeacac',
   }
 }

@@ -4,7 +4,9 @@ import {
   Text,
   View
 } from 'react-native';
-import Touchable from '../components/common/Touchable';
+import Touchable from './common/Touchable';
+import typoStyle from '../resource/typography';
+import Color from '../resource/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 /**
@@ -33,8 +35,12 @@ class MenuItem extends Component {
     return (
       <Touchable onPress={this.props.onPress}>
         <View style={styles.container}>
-          <Icon name={icon} style={[styles.icon, selectedIconStyle]} />
-          <Text style={[styles.title, selectedTitleStyle]}>{this.props.title}</Text>
+          <View style={styles.menuLineWrapper}>
+            <Icon name={icon} style={[styles.icon, selectedIconStyle]} />
+          </View>
+          <View style={styles.menuLineWrapper}>
+            <Text style={[typoStyle.menu, selectedTitleStyle]}>{this.props.title}</Text>
+          </View>
           {badge}
         </View>
       </Touchable>
@@ -45,25 +51,26 @@ class MenuItem extends Component {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: 50,
+    height: 48,
     alignItems: 'center',
-    paddingHorizontal: 20,
+
+  },
+  menuLineWrapper: {
+    height: 50,
+    justifyContent: 'center',
+    marginLeft: 16
   },
   icon: {
     marginRight: 20,
-    color: '#7F91A7',
-    fontSize: 17
+    marginBottom: 6,
+    color: Color.color.SecondText,
+    fontSize: 25
   },
   selectedIcon: {
-    color: '#032250'
-  },
-  title: {
-    flex: 1,
-    fontSize: 17,
-    color: '#7F91A7',
+    color: '#4285f4'
   },
   selectedTitle: {
-    color: '#032250'
+    color: '#4285f4'
   },
   badge: {
     backgroundColor: '#DC3883',

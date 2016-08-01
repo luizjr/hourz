@@ -12,9 +12,10 @@ import {
   Text
 } from 'react-native';
 import { Tab, TabLayout } from 'react-native-android-tablayout';
-import Header from '../../components/common/Header';
+import HeaderView         from '../../components/HeaderView';
 import PureListView       from '../../components/common/PureListView';
 import ListContainer      from '../../components/common/ListContainer';
+import JobJoinModal       from '../../components/JobJoinModal';
 import JobEnterprise      from './tabs/JobEnterprise';
 import MyEnterprise       from './tabs/MyEnterprise';
 import * as HBStyleSheet  from '../../components/common/HBStyleSheet';
@@ -22,13 +23,17 @@ import { connect }        from 'react-redux';
 import ActionButton       from 'react-native-action-button';
 import ActButton          from '../../components/common/ActButton';
 import Color              from '../../resource/color'; //Importa a palheta de cores
+import {jobJoin}          from '../../actions/job';
 
 class TabsEnterprise extends Component {
   constructor() {
     super(...arguments);
     this.state = {
-      tabSelected: 1
+      tabSelected: 1,
+      jobJoin: false
     };
+
+    this._onJobJoinModalClose = this._onJobJoinModalClose.bind(this);
   }
 
 
@@ -44,9 +49,20 @@ class TabsEnterprise extends Component {
           {name: 'new_enterprise', title: 'Empresa nova'}
         );
         break;
+      case "employee":
+        this.setState({
+          jobJoin: true
+        });
+        break;
       default:
         return
     }
+  }
+
+  _onJobJoinModalClose(token) {
+    console.log(token);
+    this.props.jobJoin(token, this.props.user);
+    this.setState({jobJoin: false});
   }
 
   _getActionButton() {
@@ -96,13 +112,11 @@ class TabsEnterprise extends Component {
       };
 
     return (
-      <View style={styles.container}>
-      <Header
-        style={styles.header}
+      // <View style={styles.container}>
+      <HeaderView
         title="Hourz"
-        leftItem={leftItem}
+        navigator={this.props.navigator}
       >
-      </Header>
         {/**backgroundImage={require('./img/maps-background.png')}*/}
         <TabLayout
           style={styles.tabLayout}
@@ -111,30 +125,10 @@ class TabsEnterprise extends Component {
           <Tab {...tab2} />
         </TabLayout>
         {this._createSelectedView()}
-        {/*<ListContainer
-          title="Empresas"
-          backgroundColor={Color.color.PrimaryColor}>
-
-          <PureListView
-            title='Meus trabalhos'
-            renderEmptyList={() => <JobEnterprise />}
-            renderRow={(point, idSec, idRow) => {}}
-          />
-          <PureListView
-            title='Minhas Empresas'
-            renderEmptyList={() => <MyEnterprise />}
-            renderRow={(point, idSec, idRow) => {}}
-          />
-        </ListContainer>*/}
-
-
-        {/*Action Button*/}
-        {/*<ActionButton
-          buttonColor={Color.color.AccentColor}
-          onPress={this._onPress.bind(this)} />*/}
           {this._getActionButton()}
 
-      </View>
+        </HeaderView>
+      // </View>
     );
   }
 
@@ -142,7 +136,17 @@ class TabsEnterprise extends Component {
     let response;
     switch (this.state.tabSelected) {
       case 1:
-        response = <JobEnterprise navigator={this.props.navigator}/>;
+        response = (
+          <View>
+            <JobJoinModal
+              isVisible={this.state.jobJoin}
+              onRequestClose={this._onJobJoinModalClose} />
+            <JobEnterprise
+              navigator={this.props.navigator}
+              jobs={this.props.jobs}
+            />
+          </View>
+        );
         break;
       case 2:
         response = <MyEnterprise navigator={this.props.navigator}/>
@@ -181,4 +185,17 @@ var styles = HBStyleSheet.create({
   },
 });
 
-module.exports = TabsEnterprise;
+function mapStateToProps(state) {
+  return {
+    user: state.user,
+    jobs: state.jobReducer.jobs
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    jobJoin: (token, user) => dispatch(jobJoin(token, user))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TabsEnterprise);

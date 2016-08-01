@@ -1,12 +1,14 @@
 import React, { Component, PropTypes } from 'react';
 import {
   ListView,
+  RefreshControl,
   StyleSheet,
   Text,
   View
 } from 'react-native';
 
 import PointListItem from './PointListItem';
+import Color from '../resource/color';
 
 /**
  * Lista de pontos batidos
@@ -56,8 +58,12 @@ class PointList extends Component {
    */
   renderRow(point, idSec, idRow) {
     return (
-      <PointListItem key={point.key} point={point} />
+      <PointListItem key={point.key} point={point} disabled={this.props.refreshing} />
     );
+  }
+
+  renderSeparator(sectionId, rowId, adjacentRowHighlighted) {
+    return (<View style={{borderWidth:0.3, borderColor:'#b6b6b6'}} key={`sep:${sectionId}:${rowId}`} />);
   }
 
   /**
@@ -88,7 +94,17 @@ class PointList extends Component {
           <ListView
             dataSource={this.state.dataSource}
             renderRow={this.renderRow.bind(this)}
+            renderSeparator={this.renderSeparator}
             style={styles.listView}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.props.refreshing}
+                onRefresh={() => {
+                  this.props.onRefresh && this.props.onRefresh()}
+                }
+                colors={[Color.color.PrimaryColor]}
+              />
+            }
           />
       );
   }

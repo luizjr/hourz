@@ -43,14 +43,13 @@ class PointListItem extends Component {
     // let icon = `log-${this.props.point.pointType}`;
     let icon = 'fingerprint';
 
-    console.log('icone ',icon);
-
     // define o estilo do icone de acordo com o tipo de ponto (in/out)
     let iconStyle = this.props.point.pointType === 'in' ? styles.iconIn : styles.iconOut;
 
     // recebe estilo definido no props
     let style = this.props.style || {};
     let edited = this.props.point.edited ? '*': '';
+    let job = this.props.point.job ? this.props.point.job.name : null;
 
     return (
       <View style={[styles.container, ...style]}>
@@ -63,6 +62,7 @@ class PointListItem extends Component {
         {/*Hora*/}
         <View style={styles.timeWrapper}>
           <Text style={styles.time}>{time}{edited}</Text>
+          <Text>{job}</Text>
         </View>
 
         {/*Botões*/}
@@ -78,6 +78,8 @@ class PointListItem extends Component {
                 style={[styles.icon, styles.iconLocation]} />
             </View>
           </Touchable>
+
+          {/*botão de editar*/}
           <Touchable
             onPress={this._onEditPress.bind(this)}
           >

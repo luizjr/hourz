@@ -12,3 +12,7 @@ export function finishFetch(message: string): Action {
     type: 'FETCHED'
   }
 }
+
+export function loadAllData(userId) {
+  
+}

@@ -4,11 +4,14 @@ import {
   Image,
   StyleSheet,
   Text,
+  ToastAndroid,
   View
 } from 'react-native';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import DrawerLayout from '../components/common/DrawerLayout';
 import MenuItem from '../components/MenuItem';
+import ProgressBar from '../components/common/ProgressBar';
 import Home from './home';
 import Profile from './profile';
 import TabsEnterprise from './enterprise/TabsEnterprise';
@@ -16,6 +19,9 @@ import TabsEnterprise from './enterprise/TabsEnterprise';
 // import Report from './report';
 import { switchTab } from '../actions/navigation';
 import { loadPoints } from '../actions/point';
+import { loadJobs } from '../actions/job';
+import { loadEnterprises } from '../actions/enterprise';
+import { setCurrentDate } from '../actions/currentDate';
 
 /**
  * Componente principal para aplicar o DrawerLayout e os conteúdos do mesmo
@@ -30,6 +36,9 @@ class SideMenu extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      isFetching: false
+    }
     // vincula as funções ao componente
     this.renderNavigationView = this.renderNavigationView.bind(this);
     this.openDrawer = this.openDrawer.bind(this);
@@ -52,6 +61,39 @@ class SideMenu extends Component {
   openDrawer() {
     this.refs.drawer.openDrawer();
   }
+
+  componentDidMount() {
+    this.props.setCurrentDate(moment().format('YYYY/MM/DD'));
+    // Carrega os pontos do dia
+    this._loadAllData();
+    // this.props.loadEnterprises(this.props.user.id);
+  }
+
+  async _loadAllData() {
+    this.setState({
+      isFetching: true
+    });
+    try {
+      this.setState({fetchData: 'Carregando os pontos'});
+      await this.props.loadPoints(this.props.currentDate, this.props.user.id);
+      this.setState({fetchData: 'Carregando as empresas'});
+      await this.props.loadEnterprises(this.props.user.id);
+      await this.props.loadJobs(this.props.user.id);
+    } catch (e) {
+      console.log(e.message);
+    } finally {
+      this.setState({
+        isFetching: false,
+        fetchData: ''
+      });
+    }
+  }
+
+  // componentWillReceiveProps(nextProps) {
+  //   this.setState({
+  //     isFetching: nextProps.fetchData.isFetching
+  //   });
+  // }
 
   /**
    * renderiza a "tab" selecionada
@@ -81,7 +123,7 @@ class SideMenu extends Component {
    */
   onTabSelect(tab) {
     // se a tab mudou, altera a tab
-    if (this.props.tab !== tab) {
+    if (this.props.navigation.tab !== tab) {
       // dispara a action
       this.props.switchTab(tab);
     }
@@ -128,31 +170,31 @@ class SideMenu extends Component {
 
         <MenuItem
           title="Home"
-          selected={this.props.tab === 'home'}
+          selected={this.props.navigation.tab === 'home'}
           onPress={this.onTabSelect.bind(this, 'home')} />
 
         <MenuItem
           title="Profile"
           icon="person"
-          selected={this.props.tab === 'profile'}
+          selected={this.props.navigation.tab === 'profile'}
           onPress={this.onTabSelect.bind(this, 'profile')} />
 
           <MenuItem
             title="Empresas"
             icon="work"
-            selected={this.props.tab === 'enterprise'}
+            selected={this.props.navigation.tab === 'enterprise'}
             onPress={this.onTabSelect.bind(this, 'enterprise')} />
 
           {/*<MenuItem
             title="Relatórios"
             icon="equalizer"
-            selected={this.props.tab === 'report'}
+            selected={this.props.navigation.tab === 'report'}
             onPress={this.onTabSelect.bind(this, 'report')} />
 
           <MenuItem
             title="Configurações"
             icon="settings"
-            selected={this.props.tab === 'settings'}
+            selected={this.props.navigation.tab === 'settings'}
             onPress={this.onTabSelect.bind(this, 'settings')} />*/}
 
         <MenuItem
@@ -168,6 +210,13 @@ class SideMenu extends Component {
    * @return {ReactElement}
    */
   render() {
+    if(this.state.isFetching) {
+      return (
+        <View style={styles.container}>
+          <ProgressBar style={styles.progress} text={this.state.fetchData} />
+        </View>
+      )
+    }
     return (
       <DrawerLayout
         ref="drawer"
@@ -188,6 +237,10 @@ SideMenu.childContextTypes = {
 
 // Estilos do componente
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center'
+  },
   drawer: {
     flex: 1,
     paddingTop: 24,
@@ -216,7 +269,9 @@ const styles = StyleSheet.create({
  */
 function mapStateToProps(state) {
   return {
-    navigation: state.navigation
+    currentDate: state.currentDate,
+    navigation: state.navigation,
+    user: state.user
   }
 }
 
@@ -227,7 +282,11 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    switchTab: (tab) => dispatch(switchTab(tab))
+    switchTab: (tab) => dispatch(switchTab(tab)),
+    loadPoints: (date, userId) => dispatch(loadPoints(date, userId)),
+    loadJobs: (userId) => dispatch(loadJobs(userId)),
+    loadEnterprises: (userId) => dispatch(loadEnterprises(userId)),
+    setCurrentDate: (date) => dispatch(setCurrentDate(date))
   };
 }
 

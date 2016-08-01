@@ -142,7 +142,6 @@ export function deleteEnterprise(enterprise: Enterprise): ThunkAction {
 
 export function loadEnterprises(userId) {
     return async dispatch => {
-        dispatch(initFetch('Carregando seus dados...'));
         try {
             let path = `profile/${userId}/enterprises`
             let snapshot = await database.ref(path).once('value');
@@ -159,11 +158,10 @@ export function loadEnterprises(userId) {
                 }
                 dispatch(renderRow(enterprisesArray));
             };
-            dispatch(finishFetch());
+            return Promise.resolve('carregado');
         } catch (e) {
             console.log(e.message);
-        } finally {
-            dispatch(finishFetch());
+            return Promise.reject(e);
         }
     }
 

@@ -9,7 +9,9 @@ import {
   ToastAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
+import HeaderView from '../components/HeaderView';
 import Header from '../components/common/Header';
+
 import Color from '../resource/color'; //Importa a palheta de cores
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import ActionButton from 'react-native-action-button';
@@ -46,30 +48,13 @@ class Profile extends Component {
       image: this.props.user.image,
       isFetching: false
     };
-
-  }
-
-  handleShowMenu() {
-    this.context.openDrawer();
-  }
-
-  componentDidMount() {
-    console.log(this.props.user);
-    console.log(this.state);
-  }
-
-  componentWillReceiveProps(newProps) {
-    console.log(newProps);
   }
 
   onPress() {
-    console.log(this.state.icon);
-    if ( ! this.state.edit) {
-      this.setState({edit: true});
-    } else {
-      this.setState({edit: false});
+    if (this.state.edit) {
       this.props.changeProfile(this.props.user.id, this.state);
     }
+    this.setState({edit: !this.state.edit});
   }
 
   takePicture() {
@@ -128,33 +113,11 @@ class Profile extends Component {
   render() {
 
     var icon = null;
-    if (this.state.edit) {
-
-      leftItem = {
-          title: 'Menu',
-
-          /**
-           * Ao passar um numero maior que zero muda
-           * o icone indicando que á notificações
-           */
-          icon: require('../resource/img/x-white@3x.png'),
-          onPress: this.editClose.bind(this),
-        };
-
-    } else  {
-      leftItem = {
-        title: 'Menu',
-
-        /**
-         * Ao passar um numero maior que zero muda
-         * o icone indicando que á notificações
-         */
-        icon: 0
-          ? require('../resource/img/hamburger-unread.png')
-          : require('../resource/img/hamburger.png'),
-        onPress: this.handleShowMenu.bind(this),
-      };
-    }
+    leftItem = {
+      title: 'Menu',
+      icon: require('../resource/img/x-white@3x.png'),
+      onPress: this.editClose.bind(this),
+    };
 
     var mSource = null;
     if (this.state.image) {
@@ -173,48 +136,46 @@ class Profile extends Component {
       if ( ! this.state.edit) {
         return (
           <View style={styles.container}>
-            <Header
-              style={styles.header}
+            <HeaderView
+              navigator={this.props.navigator}
               title="Profile"
-              leftItem={leftItem} >
-            </Header>
-            <View style={styles.body}>
+              >
+              <View style={styles.body}>
+                <View style={styles.profileHeader}>
+                  <Image
+                    style={styles.placeholder}
+                    reiszeMode="container"
+                    source= {mSource}>
 
-            <View style={styles.profileHeader}>
-                <Image
-                  style={styles.placeholder}
-                  reiszeMode="container"
-                  source= {mSource}>
+                  </Image>
+                </View>
 
-                </Image>
+                <View style={styles.profileBody}>
+                  <Text style={styles.label}>
+                    Nome
+                  </Text>
+                  <Text style={styles.labelInfo}>
+                    {this.state.name}
+                  </Text>
+                  <Text style={styles.label}>
+                    Email
+                  </Text>
+                  <Text style={styles.labelInfo}>
+                    {this.props.user.email}
+                  </Text>
+                </View>
+
+                <ActionButton
+                  buttonColor={Color.color.AccentColor}
+                  onPress={this.onPress.bind(this)}
+                  icon={<Icon
+                    name="edit"
+                    size={30}
+                    color="#ccc" />} >
+
+                </ActionButton>
               </View>
-
-              <View style={styles.profileBody}>
-                <Text style={styles.label}>
-                  Nome
-                </Text>
-                <Text style={styles.labelInfo}>
-                  {this.state.name}
-                </Text>
-                <Text style={styles.label}>
-                  Email
-                </Text>
-                <Text style={styles.labelInfo}>
-                  {this.props.user.email}
-                </Text>
-              </View>
-
-              <ActionButton
-                buttonColor={Color.color.AccentColor}
-                onPress={this.onPress.bind(this)}
-                icon={<Icon
-                  name="edit"
-                  size={30}
-                  color="#ccc" />} >
-
-              </ActionButton>
-
-            </View>
+            </HeaderView>
           </View>
     );
   } else {

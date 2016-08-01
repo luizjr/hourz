@@ -15,6 +15,7 @@ import SideMenu from './containers/sidemenu';
 import PointView from './components/PointView';
 import NewEnterprise from './containers/enterprise/newEnterprise';
 import EditEnterprise from './containers/enterprise/editEnterprise';
+import ViewEnterprise from './containers/enterprise/viewEnterprise';
 
 /**
  * Componente que cria o navigator e implementa as funções
@@ -32,6 +33,11 @@ class HourzNavigator extends Component {
 
     // lista dos handlers
     this._handlers = [];
+
+    this.state = {
+      navigator: null,
+      route: null
+    };
 
     //vincula as funções com o componente
     this.renderScene = this.renderScene.bind(this);
@@ -66,9 +72,10 @@ class HourzNavigator extends Component {
   getChildContext() {
     return {
       addBackButtonListener: this.addBackButtonListener,
-      removeBackButtonListener: this.removeBackButtonListener,
+      removeBackButtonListener: this.removeBackButtonListener
     };
   }
+
 
   /**
    * adiciona o listener do botão retornar na lista de handlers
@@ -156,9 +163,12 @@ class HourzNavigator extends Component {
           case 'pointDetail':
             return (<PointView route={route} navigator={navigator} />);
           case 'new_enterprise':
-             return <NewEnterprise route={route} navigator={navigator} />
-           case 'edit_enterprise':
-              return <EditEnterprise route={route} navigator={navigator} />
+            return (<NewEnterprise route={route} navigator={navigator} />);
+          case 'edit_enterprise':
+            return (<EditEnterprise route={route} navigator={navigator} />);
+          case 'view_enterprise':
+            return (<ViewEnterprise route={route} navigator={navigator} />);
+
           default:
             // se o usuário está logado, retorna o sidemenu,
             // senão, retorna a tela de login
@@ -174,7 +184,7 @@ class HourzNavigator extends Component {
 // tipos de contextos filhos
 HourzNavigator.childContextTypes = {
   addBackButtonListener: PropTypes.func,
-  removeBackButtonListener: PropTypes.func,
+  removeBackButtonListener: PropTypes.func
 };
 
 // Estilos do componente

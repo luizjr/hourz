@@ -55,7 +55,7 @@ function reportListPoint(points: Array<Point>): Action {
  */
 export function loadPoints(date, userId) {
   return async dispatch => {
-    dispatch(initFetch('Carregando seus dados...'));
+    // dispatch(initFetch('Carregando seus dados...'));
     try {
       let pointRef = database.ref('points');
       let snapshot = await pointRef
@@ -68,29 +68,10 @@ export function loadPoints(date, userId) {
           dispatch(registerPoint(child.val()));
         });
       }
-      // console.log(snapshot.orderByChild('date'));
-      let path = `profile/${userId}/pointss/${date}`;
-      let profileSnapshot = await database.ref(path)
-        .once('value');
-      if(profileSnapshot.exists()) {
-        profileSnapshot.forEach(child => {
-          let currentPoint = child.key;
-
-        });
-      }
-      console.log(profileSnapshot.val());
-      // let snapshot = await database.ref(path)
-      //   .once('value');
-      // if(snapshot.exists()) {
-      //   let points = snapshot.val();
-      //   for(let key in points) {
-      //     dispatch(registerPoint(points[key]));
-      //   }
-      // }
+      return Promise.resolve('carregado');
     } catch (e) {
       console.log(e.message);
-    } finally {
-      dispatch(finishFetch());
+      return Promise.reject(e);
     }
   }
 
@@ -123,10 +104,11 @@ export function loadAllPoints(year,month,userId) {
 
 }
 
-export function hitPoint(pointType: PointType, picture: ImageData, userId: string): ThunkAction {
+export function hitPoint(pointType: PointType, picture: ImageData, job, userId: string): ThunkAction {
   return dispatch => {
 
     dispatch(initFetch('Buscando Geolocalização...'));
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         let {latitude, longitude} = position.coords;
@@ -147,9 +129,8 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
           let pointKey = pointRef.key;
           dispatch(initFetch('Salvando Imagem...'));
           try {
-            console.log(picture);
             let base64string = `data:${picture.type};base64,${picture.data}`;
-            console.log(base64string);
+
             // var reader  = new FileReader();
             // reader.onload = (event) => {
             //
@@ -163,6 +144,7 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
             // }, () => {
             //   console.log("completo");
             // });
+            let jobKey = job || '';
             let point = {
               key: pointKey,
               pointType,
@@ -173,19 +155,26 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
               createdAt: time.toISOString(),
               picture,
               userId,
+              jobKey,
               userDate: `${userId}+${date}`
             };
 
             let userPath = `profile/${userId}/points/${date}/${pointKey}`
             let userRef = database.ref(userPath);
+            let enterprisePath = job ? `enterprise/${jobKey}/points/${date}/${pointKey}` : null;
 
             try {
               dispatch(initFetch('Salvando os dados...'));
               await pointRef.set(point);
               await userRef.set(true);
+              if(enterprisePath) {
+                enterpriseRef = database.ref(enterprisePath);
+                await enterpriseRef.set(true);
+              };
               dispatch(registerPoint(point));
               ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
             } catch (e) {
+              console.log(e.message);
               ToastAndroid.show('Erro ao salvar os dados.', ToastAndroid.SHORT);
             }
           } catch (e) {

@@ -1,7 +1,8 @@
 'use strict';
 
 import React, {
-  Component
+  Component,
+  PropTypes
 } from 'react';
 
 import {
@@ -22,23 +23,37 @@ import Color              from '../../../resource/color'; //Importa a palheta de
 import JobList            from '../../../components/JobList';
 
 class JobEnterprise extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isFetching: false
+    };
   }
 
 
 
   render() {
-    const {map1, map2} = this.props;
 
+    // if(this.state.isFetching) {
+    //   return (
+    //     <View style={styles.container}>
+    //       <ProgressBar style={styles.progress} text={this.props.fetchData.message} />
+    //     </View>
+    //   )
+    // }
 
     return (
       <View style={styles.container}>
-          <JobList jobs={[]} />
+          <JobList jobs={this.props.jobs} />
       </View>
     );
   }
 
+}
+
+JobEnterprise.propTypes = {
+  jobs: PropTypes.array
 }
 
 var styles = HBStyleSheet.create({
@@ -48,4 +63,4 @@ var styles = HBStyleSheet.create({
   }
 });
 
-module.exports = JobEnterprise;
+export default JobEnterprise;

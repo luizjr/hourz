@@ -65,7 +65,9 @@ class MyEnterprise extends Component {
   }
 
   _viewEnterprise(enterprise) {
-    alert('Ver empresa ' + enterprise.name);
+    this.props.navigator.push(
+      {name: 'view_enterprise', title: 'Ver Empresa', enterprise: enterprise}
+    );
   }
 
   _deleteEnterprise(enterprise) {
@@ -89,14 +91,6 @@ class MyEnterprise extends Component {
     this.props.cleanSaved();
   }
 
-  componentDidMount() {
-    // Carrega os pontos do dia
-    this.setState({
-      isFetching: true,
-    });
-    this.props.loadEnterprises(this.props.user.id);
-  }
-
   componentWillReceiveProps(nextProps) {
     this.setState({
       isFetching: nextProps.fetchData.isFetching
@@ -105,13 +99,13 @@ class MyEnterprise extends Component {
 
   render() {
 
-    if(this.state.isFetching) {
-      return (
-        <View style={styles.container}>
-          <ProgressBar style={styles.progress} text={this.props.fetchData.message} />
-        </View>
-      )
-    }
+    // if(this.state.isFetching) {
+    //   return (
+    //     <View style={styles.container}>
+    //       <ProgressBar style={styles.progress} text={this.props.fetchData.message} />
+    //     </View>
+    //   )
+    // }
 
     return (
       <View style={styles.container}>
