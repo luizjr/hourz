@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  Alert,
   DatePickerAndroid,
+  DeviceEventEmitter,
   Picker,
   Text,
   TimePickerAndroid,
@@ -15,6 +17,7 @@ import ListPoints from './points/listPoints';
 import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/ActButton';
 import HeaderView from '../components/HeaderView';
+import ProgressBar from '../components/common/ProgressBar';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import DateView from '../components/DateView';
 import { hitPoint, loadPoints } from '../actions/point';
@@ -27,6 +30,11 @@ import {
 import PickerModal from '../components/common/PickerModal';
 // import { b64toBlob } from '../misc/imageWrapper';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
+var RNALocation = require('react-native-android-location');
+var geolib = require('geolib');
+import getCurrentPosition from '../misc/getLocation';
+import { getTime } from '../resource/timezonedb';
+import { defaultOptions, launchCamera } from '../misc/imagePicker';
 
 
 /**
@@ -42,19 +50,6 @@ class Home extends Component {
   constructor(props) {
     super(props);
 
-    // opções do ImagePickerManager
-    this.cameraOptions = {
-      cancelButtonTitle: 'Cancelar',
-      takePhotoButtonTitle: 'Capturar...',
-      chooseFromLibraryButtonTitle: 'Buscar na biblioteca...',
-      cameraType: 'front',
-      aspectX: 1,
-      aspectY: 1,
-      quality: 0.2,
-      angle: 0,
-      allowsEditing: true
-    };
-
     this.state = {
       pickerModal: {
         isVisible: false
@@ -62,7 +57,11 @@ class Home extends Component {
       job: null,
       pointType: null,
       isFetching: false,
-      currentDate: moment()
+      currentDate: moment(),
+      myPlace: null,
+      ifFetching: false,
+      fetchData: '',
+      gpsOpen: false
     };
 
     // Vincula as funções com o componente
@@ -86,7 +85,24 @@ class Home extends Component {
 
     // Altera a data atual no store do redux
     this.props.setCurrentDate(this.state.currentDate.format('YYYY/MM/DD'));
-
+    this.watchID = navigator.geolocation.watchPosition(
+      (position) => {
+        let myPlace = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        this.setState({
+          myPlace,
+          gpsOpen: true
+        });
+      }, (error) => {
+        console.log(error);
+        this.setState({
+          myPlace: null,
+          gpsOpen: false
+        });
+      }, {enableHighAccuracy: true, timeout: 10000, maximumAge: 5000}
+    );
   }
 
 
@@ -103,11 +119,18 @@ class Home extends Component {
        this.props.loadPoints(this.props.currentDate, this.props.user.id);
     }
 
-    if(prevState.pickerModal.isVisible && !this.state.pickerModal.isVisible && this.state.job) {
-      console.log('fechado');
-      console.log(this.state.job);
-      this._managePoint(this.state.pointType);
+    if(
+      prevState.pickerModal.isVisible && !this.state.pickerModal.isVisible) {
+        if (this.state.job) {
+          this._managePoint(this.state.pointType);
+        } else {
+          ToastAndroid.show("Cancelado.", ToastAndroid.SHORT);
+        }
     }
+  }
+
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchID);
   }
 
   _managePoint(type, jobKey=null) {
@@ -131,15 +154,14 @@ class Home extends Component {
           } else {
             job = this.props.jobs[0];
           }
-          console.log('batendo o ponto...');
-          this._hitPoint(type, job.key);
+          this._hitPoint(type, job);
         } else {
           this._hitPoint(type);
         }
         break;
-        case 'out':
-          this._hitPoint(type, jobKey);
-          break;
+      case 'out':
+        this._hitPoint(type, this.props.jobs.find(value => value.key === jobKey));
+        break;
 
     }
   }
@@ -150,41 +172,70 @@ class Home extends Component {
    * @param {string} job -> trabalho selecionado para o ponto
    * @return {void}
    */
-  _hitPoint(type, job) {
+  async _hitPoint(pointType, job) {
 
     this.setState({
       isFetching: true
     });
-    let time = moment();
-    // pega a Imagem
-    ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
 
-      // se o usuário cancelou, notifica na tela
-      if(response.didCancel) {
-        ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
-        this.setState({
-          isFetching: false
-        });
-        return;
+    try {
+      let time = moment();
+      if(!this.state.gpsOpen) {
+        throw {message: "Erro ao pegar a localização"};
       }
 
-      // se deu erro, notifica na tela
-      if(response.error) {
-        ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
-        this.setState({
-          isFetching: false
-        });
-        return;
+      let position = this.state.myPlace;
+
+      // Verifica se o dispositivo está no raio da empresa
+      if(job) {
+        if (job.place) {
+          let {latitude, longitude, radius, blocked} = job.place;
+          if(!geolib.isPointInCircle(position, job.place, radius)) {
+            if (blocked) {
+              throw {message: "Você não pode bater o ponto fora da empresa!"};
+            }
+          }
+        }
       }
-      console.log(this.props);
-      // action de bater o Ponto
-      // @see app/actions/point.js
-      this.props.hitPoint(type, response, job, this.props.user.id);
+
+      let picture = await launchCamera();
+
+      if(picture.didCancel) {
+        throw {message: "Cancelado"};
+      }
+
+      try {
+        this.setState({fetchData: 'Buscando a hora da rede'});
+        let timezone = await getTime({
+          latitude: position.latitude,
+          longitude: position.longitude
+        });
+        // converte o timestamp
+        time = moment.unix(timezone.timestamp).add(3, 'hour');
+
+
+      } catch (e) {
+        ToastAndroid.show('Erro ao receber a hora da rede.', ToastAndroid.SHORT);
+      } finally {
+        this.setState({fetchData: 'Salvando os dados'});
+        let date = time.format('YYYY/MM/DD');
+        let userId = this.props.user.id;
+        let hittedPoint = await this.props.hitPoint(
+          {pointType, position, picture, date, time, job, userId}
+        );
+        ToastAndroid.show("Ponto batido.", ToastAndroid.SHORT);
+      }
+
+    } catch (e) {
+      ToastAndroid.show(e.message || e, ToastAndroid.SHORT);
+    } finally {
       this.setState({
         job: null,
-        pointType: null
+        pointType: null,
+        isFetching: false,
+        fetchData: ''
       });
-    });
+    }
   }
 
     /**
@@ -230,6 +281,11 @@ class Home extends Component {
       }
     }
     _renderPointList() {
+      if(this.state.isFetching) {
+        return (
+          <ProgressBar text={this.state.fetchData} />
+        );
+      }
       return (<ListPoints currentDate={this.props.currentDate}/>);
     }
 
@@ -353,7 +409,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    hitPoint: (pointType, picture, job, userId) => dispatch(hitPoint(pointType, picture, job, userId)),
+    hitPoint: (
+      point
+    ) => dispatch(hitPoint(point)),
     loadPoints: (date, userId) => dispatch(loadPoints(date, userId)),
     setCurrentDate: (date) => dispatch(setCurrentDate(date))
   }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
 import Hourz from './Hourz';
+var Orientation = require('react-native-orientation');
 
 
 /**
@@ -17,6 +18,10 @@ class Root extends Component {
       // store do redux
       store: configureStore(() => this.setState({isLoading: false}))
     };
+  }
+
+  componentDidMount() {
+    Orientation.lockToPortrait();
   }
 
   /**

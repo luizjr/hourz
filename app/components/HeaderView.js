@@ -49,7 +49,9 @@ class HeaderView extends Component {
         <Header
           {...this.props}
           leftItem={this._getLeftItem()}
+          rightItem={this.props.rightItem}
           children={null}
+          foreground="light"
           style={[headerStyle]}
         />
         <View style={[styles.body, style]}>

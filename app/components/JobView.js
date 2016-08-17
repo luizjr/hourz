@@ -42,10 +42,6 @@ class EnterpriseView extends Component {
             <Text style={Typo.caption}>Token de acesso</Text>
             <Text style={Typo.body1}>{enterprise.token}</Text>
           </View>
-          <View style={styles.labelField}>
-            <Text style={Typo.caption}>Nº de colaboradores</Text>
-            <Text style={Typo.body1}>0</Text>
-          </View>
           {this._renderMap()}
         </View>
       </HeaderView>

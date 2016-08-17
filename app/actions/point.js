@@ -104,92 +104,58 @@ export function loadAllPoints(year,month,userId) {
 
 }
 
-export function hitPoint(pointType: PointType, picture: ImageData, job, userId: string): ThunkAction {
+export function hitPoint({
+  pointType,
+  position,
+  picture,
+  date,
+  time,
+  job,
+  userId
+}): ThunkAction {
   return dispatch => {
+    return new Promise(async (resolve, reject) => {
+      let {latitude, longitude} = position;
+      // firebase
+      let pointRef = database.ref('points').push();
+      let pointKey = pointRef.key;
+      try {
+        let base64string = `data:${picture.type};base64,${picture.data}`;
+        let jobKey = job ? job.key : '';
+        let point = {
+          key: pointKey,
+          pointType,
+          location: {latitude, longitude},
+          date,
+          hour: time.hour(),
+          minute: time.minute(),
+          createdAt: time.toISOString(),
+          picture,
+          userId,
+          jobKey,
+          userDate: `${userId}+${date}`
+        };
 
-    dispatch(initFetch('Buscando Geolocalização...'));
+        let userPath = `profile/${userId}/points/${date}/${pointKey}`
+        let userRef = database.ref(userPath);
+        let enterprisePath = job ? `enterprise/${jobKey}/points/${date}/${pointKey}` : null;
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        let {latitude, longitude} = position.coords;
-        dispatch(initFetch('Buscando a hora da rede...'));
-        let time = moment();
         try {
-          let timezone = await getTime({latitude, longitude});
-          // converte o timestamp
-          time = moment.unix(timezone.timestamp).add(3, 'hour');
-
-
+          await pointRef.set(point);
+          await userRef.set(true);
+          if(enterprisePath) {
+            enterpriseRef = database.ref(enterprisePath);
+            await enterpriseRef.set(true);
+          };
+          dispatch(registerPoint(point));
+          resolve(point);
         } catch (e) {
-          ToastAndroid.show('Erro ao receber a hora da rede.', ToastAndroid.SHORT);
-        } finally {
-          let date = time.format('YYYY/MM/DD');
-          // firebase
-          let pointRef = database.ref('points').push();
-          let pointKey = pointRef.key;
-          dispatch(initFetch('Salvando Imagem...'));
-          try {
-            let base64string = `data:${picture.type};base64,${picture.data}`;
-
-            // var reader  = new FileReader();
-            // reader.onload = (event) => {
-            //
-            // }
-            // reader.readAsDataURL(b64toBlob(picture.base64, 'image/jpeg'));
-            // let uploadTask = storage.child(`${date}/${pointKey}.jpg`).put(event.target.result);
-            // uploadTask.on('state_changed', (snapshot) => {
-            //   console.log(snapshot);
-            // }, (err) => {
-            //   console.log(err);
-            // }, () => {
-            //   console.log("completo");
-            // });
-            let jobKey = job || '';
-            let point = {
-              key: pointKey,
-              pointType,
-              location: {latitude, longitude},
-              date,
-              hour: time.hour(),
-              minute: time.minute(),
-              createdAt: time.toISOString(),
-              picture,
-              userId,
-              jobKey,
-              userDate: `${userId}+${date}`
-            };
-
-            let userPath = `profile/${userId}/points/${date}/${pointKey}`
-            let userRef = database.ref(userPath);
-            let enterprisePath = job ? `enterprise/${jobKey}/points/${date}/${pointKey}` : null;
-
-            try {
-              dispatch(initFetch('Salvando os dados...'));
-              await pointRef.set(point);
-              await userRef.set(true);
-              if(enterprisePath) {
-                enterpriseRef = database.ref(enterprisePath);
-                await enterpriseRef.set(true);
-              };
-              dispatch(registerPoint(point));
-              ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
-            } catch (e) {
-              console.log(e.message);
-              ToastAndroid.show('Erro ao salvar os dados.', ToastAndroid.SHORT);
-            }
-          } catch (e) {
-            console.log(e.message);
-          } finally {
-            dispatch(finishFetch());
-          }
-
+          throw { name: 'FirebaseError', message: 'Erro ao salvar os dados' };
         }
-      },
-      (error) => {
-        ToastAndroid.show('Erro em receber a sua localização.', ToastAndroid.SHORT);
-        dispatch(finishFetch());
+      } catch (e) {
+        reject(e.message);
       }
-    );
+    });
   }
 }
 

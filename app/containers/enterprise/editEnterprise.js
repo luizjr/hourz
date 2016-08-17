@@ -20,6 +20,7 @@ import {
   cleanSaved,
   editEnterprise
 } from '../../actions/enterprise';
+import { enterpriseSelector } from '../../reselect/enterprises';
 
 import ProgressBar              from '../../components/common/ProgressBar';
 import * as HBStyleSheet        from '../../components/common/HBStyleSheet';
@@ -27,6 +28,7 @@ import Header                   from '../../components/common/Header';
 import HeaderView               from '../../components/HeaderView';
 import TextButton               from '../../components/common/TextButton';
 import BackButtonIcon           from '../../components/common/BackButtonIcon';
+import EnterpriseEditPointView  from '../../components/EnterpriseEditPointView';
 import Color                    from '../../resource/color';
 
 class EditEnterprise extends Component {
@@ -95,6 +97,43 @@ class EditEnterprise extends Component {
       this.props.navigator.pop();
     }
 
+    onSave(enterprise) {
+      this.setState({
+        isFetching: true
+      });
+
+      this.props.editEnterprise(enterprise);
+    }
+
+    renderBody() {
+      if (this.props.route.type==='point') {
+        return (
+          <EnterpriseEditPointView enterprise={this.props.enterprise} onSave={this.onSave.bind(this)}/>
+        );
+      }
+      return (
+        <View style={styles.body}>
+          <Text style={styles.label}>Nome:</Text>
+          <TextInput
+            style={styles.input}
+            value={this.state.name}
+            onChangeText={(text) => this.setState({name: text})} />
+
+          <Text style={styles.msgError}>{this.state.errorMessage}</Text>
+
+          <View style={styles.buttonSubmitWrapper}>
+            <TextButton
+              style={styles.buttonSubmit}
+              textStyle={styles.buttonSubmitText}
+              title="EDITAR"
+              onPress={this.onPress}
+            />
+          </View>
+
+        </View>
+      );
+    }
+
     render() {
       if(this.state.isFetching) {
         return (
@@ -106,25 +145,7 @@ class EditEnterprise extends Component {
                 navigator={this.props.navigator}
                 title="Editar empresa"
               >
-                <View style={styles.body}>
-                  <Text style={styles.label}>Nome:</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={this.state.name}
-                    onChangeText={(text) => this.setState({name: text})} />
-
-                  <Text style={styles.msgError}>{this.state.errorMessage}</Text>
-
-                  <View style={styles.buttonSubmitWrapper}>
-                    <TextButton
-                      style={styles.buttonSubmit}
-                      textStyle={styles.buttonSubmitText}
-                      title="EDITAR"
-                      onPress={this.onPress}
-                    />
-                  </View>
-
-                </View>
+                {this.renderBody()}
               </HeaderView>
         )
     }
@@ -201,8 +222,9 @@ var styles = HBStyleSheet.create({
 
 });
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
     return {
+      enterprise: enterpriseSelector(state, props.route.enterprise),
       user: state.user,
       enterprises: state.enterpriseReducer,
       fetchData: state.fetchData

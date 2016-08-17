@@ -1,6 +1,11 @@
 package com.hourz;
 
+import android.content.Intent;
+import android.content.res.Configuration;
+
 import com.facebook.react.ReactActivity;
+import com.joshblour.reactnativepermissions.ReactNativePermissionsPackage;
+import com.BV.LinearGradient.LinearGradientPackage;
 import com.xebia.reactnative.TabLayoutPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -40,11 +45,22 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
                 new MainReactPackage(),
+            new ReactNativePermissionsPackage(),
+            new LinearGradientPackage(),
                 new TabLayoutPackage(),
                 new ImagePickerPackage(),
                 new VectorIconsPackage(),
                 new MapsPackage(this),
                 new OrientationPackage(this)
         );
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        super.onConfigurationChanged(newConfig);
+        Intent intent = new Intent("onConfigurationChanged");
+        intent.putExtra("newConfig", newConfig);
+        this.sendBroadcast(intent);
     }
 }
