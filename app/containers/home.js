@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import {
   Alert,
   DatePickerAndroid,
-  DeviceEventEmitter,
   Picker,
   Text,
   TimePickerAndroid,
@@ -13,6 +12,9 @@ import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import ptBr from 'moment/locale/pt-br';
+var ImagePickerManager = require('NativeModules').ImagePickerManager;
+var RNALocation = require('react-native-android-location');
+var geolib = require('geolib');
 import ListPoints from './points/listPoints';
 import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/ActButton';
@@ -29,9 +31,6 @@ import {
 } from '../reselect/points';
 import PickerModal from '../components/common/PickerModal';
 // import { b64toBlob } from '../misc/imageWrapper';
-var ImagePickerManager = require('NativeModules').ImagePickerManager;
-var RNALocation = require('react-native-android-location');
-var geolib = require('geolib');
 import getCurrentPosition from '../misc/getLocation';
 import { getTime } from '../resource/timezonedb';
 import { defaultOptions, launchCamera } from '../misc/imagePicker';
@@ -344,9 +343,9 @@ class Home extends Component {
             <View style={[styles.pointListContainer]}>
               {this._renderPointList()}
             </View>
-            <View style={styles.sumContainer}>
+            {/* <View style={styles.sumContainer}>
               <Text>Total: {this.props.totalHours}</Text>
-            </View>
+            </View> */}
 
             {/*Action Button*/}
 
@@ -382,12 +381,6 @@ var styles = HBStyleSheet.create({
   },
   pointListContainer: {
     flex: 9
-  },
-  sumContainer: {
-    flex: 3,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    backgroundColor: "rgb(219, 219, 219)"
   }
 });
 
@@ -401,7 +394,6 @@ function mapStateToProps(state) {
       currentDate: state.currentDate,
       fetchData: state.fetchData,
       points: pointsWithJobSelector(state, pointsOfDay),
-      totalHours: totalHoursOfDaySelector(state),
       user: state.user,
       jobs: jobs
     };

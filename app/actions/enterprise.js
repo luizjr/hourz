@@ -1,24 +1,24 @@
 'use strict'
 
 import {
-    ToastAndroid,
-    TimePickerAndroid
+  ToastAndroid,
+  TimePickerAndroid
 } from 'react-native';
 
 import {
-    initFetch,
-    finishFetch
+  initFetch,
+  finishFetch
 } from './fetchData';
 
 import {
-    getTime
+  getTime
 } from '../resource/timezonedb';
 
 import type {
-    Action,
-    ImageData,
-    ThunkAction,
-    Enterprise
+  Action,
+  ImageData,
+  ThunkAction,
+  Enterprise
 } from './types'
 
 import moment from 'moment';
@@ -29,73 +29,74 @@ import getBaseRef from '../env';
 const database = getBaseRef().database();
 
 function createEnterpriseReducer(enterprise: Enterprise): Action {
-    return {
-        type: 'CREATE_ENTERPRISE',
-        payload: enterprise
-    }
+  return {
+    type: 'CREATE_ENTERPRISE',
+    payload: enterprise
+  }
 }
+
 function editEnterpriseAction(enterprise: Enterprise): Action {
   return {
-      type: 'EDIT_ENTERPRISE',
-      payload: enterprise
-    }
+    type: 'EDIT_ENTERPRISE',
+    payload: enterprise
+  }
 }
 
 function deleteEnterpriseAction(enterprise: Enterprise): Action {
   return {
-      type: 'DELETE_ENTERPRISE',
-      payload: enterprise
-    }
+    type: 'DELETE_ENTERPRISE',
+    payload: enterprise
+  }
 }
 
 function renderRow(enterprise: Enterprise): Action {
-    return {
-        type: 'RENDER_ROW_ENTERPRISE',
-        payload: enterprise
-    }
+  return {
+    type: 'RENDER_ROW_ENTERPRISE',
+    payload: enterprise
+  }
 }
 
 export function cleanSaved() {
-    return {
-        type: 'CLEAN_SAVED'
-    }
+  return {
+    type: 'CLEAN_SAVED'
+  }
 }
 
 export function createEnterprise(enterprise: Enterprise): ThunkAction {
-    return async dispatch => {
+  return async dispatch => {
 
-        dispatch(initFetch('Criando empresa...'));
+    dispatch(initFetch('Criando empresa...'));
 
-        try {
-            // firebase
-            let path = `enterprise`;
-            let enterpriseRef = database.ref(path).push();
+    try {
+      // firebase
+      let path = `enterprise`;
+      let enterpriseRef = database.ref(path).push();
 
-            enterprise.key = enterpriseRef.key;
-            enterprise.token = moment().unix();
+      enterprise.key = enterpriseRef.key;
+      enterprise.token = moment().unix();
 
-            let pathProfile = `profile/${enterprise.owner}/enterprises/${enterprise.key}`;
-            let userRef = database.ref(pathProfile);
+      let pathProfile = `profile/${enterprise.owner}/enterprises/${enterprise.key}`;
+      let userRef = database.ref(pathProfile);
 
-            let enterpriseErr = await enterpriseRef.set(enterprise);
-            if (enterpriseErr) {
-              throw "Erro ao salvar no banco";
-            }
-            let userErr = await userRef.set(true);
-            if (userErr) {
-              throw "Erro ao salvar a referência do usuário no banco";
-            }
-            dispatch(createEnterpriseReducer(enterprise));
-            ToastAndroid.show('Empresa criada com sucesso.', ToastAndroid.SHORT);
-        } catch (e) {
-            console.log(e.message);
-            ToastAndroid.show('Erro ao criar a empresa.', ToastAndroid.SHORT);
-            dispatch(finishFetch());
-        } finally {
-            dispatch(finishFetch());
-        }
-
+      let enterpriseErr = await enterpriseRef.set(enterprise);
+      if (enterpriseErr) {
+        throw "Erro ao salvar no banco";
+      }
+      let userErr = await userRef.set(true);
+      if (userErr) {
+        throw "Erro ao salvar a referência do usuário no banco";
+      }
+      dispatch(createEnterpriseReducer(enterprise));
+      ToastAndroid.show('Empresa criada com sucesso.', ToastAndroid.SHORT);
+    } catch (e) {
+      console.log(e.message);
+      ToastAndroid.show('Erro ao criar a empresa.', ToastAndroid.SHORT);
+      dispatch(finishFetch());
+    } finally {
+      dispatch(finishFetch());
     }
+
+  }
 }
 
 export function editEnterprise(enterprise: Enterprise): ThunkAction {
@@ -141,28 +142,51 @@ export function deleteEnterprise(enterprise: Enterprise): ThunkAction {
 }
 
 export function loadEnterprises(userId) {
-    return async dispatch => {
-        try {
-            let path = `profile/${userId}/enterprises`
-            let snapshot = await database.ref(path).once('value');
-            if (snapshot.exists()) {
-                let enterprises = snapshot.val();
-                let enterprisesArray = [];
-                for (let key in enterprises) {
-                    let pathEnterprise = `enterprise/${key}`;
-                    let snapshotEnterprise = await database.ref(pathEnterprise).once('value');
-                    if (snapshotEnterprise.exists()) {
-                        let enterprisesEntity = snapshotEnterprise.val();
-                        enterprisesArray.push(enterprisesEntity);
-                    }
-                }
-                dispatch(renderRow(enterprisesArray));
-            };
-            return Promise.resolve('carregado');
-        } catch (e) {
-            console.log(e.message);
-            return Promise.reject(e);
+  return async dispatch => {
+    try {
+      let path = `profile/${userId}/enterprises`;
+      let snapshot = await database.ref(path).once('value');
+      if (snapshot.exists()) {
+        let enterprises = snapshot.val();
+        let enterprisesArray = [];
+        for (let key in enterprises) {
+          let pathEnterprise = `enterprise/${key}`;
+          let snapshotEnterprise = await database.ref(pathEnterprise).once('value');
+          if (snapshotEnterprise.exists()) {
+            let enterprisesEntity = snapshotEnterprise.val();
+            enterprisesEntity.employees = await getEnterpriseUsers(enterprisesEntity);
+            console.log(enterprisesEntity);
+            enterprisesArray.push(enterprisesEntity);
+          }
         }
+        dispatch(renderRow(enterprisesArray));
+      };
+      return Promise.resolve('carregado');
+    } catch (e) {
+      return Promise.reject(e);
     }
+  }
+
+}
+
+async function getEnterpriseUsers(enterprise) {
+  let userRef = database.ref('profile');
+  if (!enterprise.users) {
+    return [];
+  }
+  let userArray = [];
+  try {
+    console.log(enterprise);
+    for (let key in enterprise.users) {
+      console.log(key);
+      if (enterprise.users[key].active) {
+        let user = await userRef.child(`${key}`).orderByChild('name').once('value');
+        userArray.push(user.val());
+      }
+    }
+    return Promise.resolve(userArray);
+  } catch (e) {
+    return Promise.reject(e);
+  }
 
 }

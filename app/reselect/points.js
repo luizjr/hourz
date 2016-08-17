@@ -69,7 +69,6 @@ export const totalHoursOfDaySelector = createSelector(
 
       let lastIn = moment({...currentIn});
       let currentOut = moment({hour, minute});
-      // console.log(lastIn.duration(currentOut));
     }
     return total;
   }

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Clipboard, ToastAndroid, View } from 'react-native';
-import EnterpriseView from '../../components/EnterpriseView';
+import JobView from '../../components/JobView';
 import {connect} from 'react-redux';
-import { enterpriseSelector } from '../../reselect/enterprises';
+import { jobSelector } from '../../reselect/jobs';
 import ActButton from '../../components/common/ActButton';
 import Color from '../../resource/color';
 
@@ -14,9 +14,9 @@ class ViewEnterprise extends Component {
         iconName: 'edit',
         onPress: () => this.props.navigator.push(
           {
-            name: 'edit_enterprise',
+            name: 'edit_job',
             title: 'Editar empresa',
-            enterprise: this.props.enterprise,
+            job: this.props.job,
             type: 'name'
           }
         )
@@ -26,9 +26,9 @@ class ViewEnterprise extends Component {
         iconName: 'place',
         onPress: () => this.props.navigator.push(
           {
-            name: 'edit_enterprise',
+            name: 'edit_job',
             title: 'Editar empresa',
-            enterprise: this.props.enterprise,
+            job: this.props.job,
             type: 'point'
           }
         )
@@ -38,7 +38,7 @@ class ViewEnterprise extends Component {
         title: 'Copiar token',
         iconName: 'content-copy',
         onPress: () => {
-          Clipboard.setString(`${this.props.enterprise.token}`);
+          Clipboard.setString(`${this.props.job.token}`);
           ToastAndroid.show('Copiado para o clipboard', ToastAndroid.SHORT);
 
         }
@@ -53,11 +53,9 @@ class ViewEnterprise extends Component {
   }
 
   render() {
-    console.log(this.props.route.enterprise);
-    console.log(this.props.enterprise);
     return (
       <View style={{flex:1}}>
-        <EnterpriseView enterprise={this.props.enterprise} navigator={this.props.navigator}/>
+        <JobView job={this.props.job} navigator={this.props.navigator}/>
         {this._getActionButton()}
       </View>
     );
@@ -66,7 +64,7 @@ class ViewEnterprise extends Component {
 
 function mapStateToProps(state, props) {
   return {
-    enterprise: enterpriseSelector(state, props.route.enterprise)
+    job: jobSelector(state, props.route.job)
   };
 }
 

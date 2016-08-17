@@ -3,6 +3,7 @@ import {
   Linking,
   RefreshControl,
   StyleSheet,
+  Text,
   ToastAndroid,
   View
 } from 'react-native';
@@ -91,13 +92,16 @@ class ListPoints extends Component {
           {...this.state.editModal}
           onRequestClose={this._onEditModalClose}
         />
-        <View style={{flex:1}}>
+        <View style={styles.listContainer}>
           <PointList
             points={this.props.points}
             refreshing={this.state.refreshing}
             onRefresh={this._onRefresh.bind(this)}
 
           />
+        </View>
+        <View style={styles.sumContainer}>
+          {/* <Text>Total: {this.props.totalHours}</Text> */}
         </View>
       </View>
     );
@@ -113,12 +117,25 @@ ListPoints.childContextTypes = {
   onLocationPress: PropTypes.func
 };
 
+const styles = StyleSheet.create({
+  listContainer: {
+    flex: 3
+  },
+  sumContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: "rgb(219, 219, 219)"
+  }
+});
+
 function mapStateToProps(state, props) {
     let pointsOfDay = pointsOfDaySelector(state, props.currentDate);
     return {
       // currentDate: state.currentDate,
       fetchData: state.fetchData,
       points: pointsWithJobSelector(state, pointsOfDay),
+      totalHours: totalHoursOfDaySelector(state),
       user: state.user
     };
 }

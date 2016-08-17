@@ -21,14 +21,14 @@ import Typo from '../resource/typography';
 
 
 
-class EnterpriseView extends Component {
+class JobView extends Component {
 
 
   render() {
-    let enterprise = this.props.enterprise;
-    let image = enterprise.picture ? enterprise.picture : require('../resource/img/company_placeholder.png');
+    let job = this.props.job;
+    let image = job.picture ? job.picture : require('../resource/img/company_placeholder.png');
     return (
-      <HeaderView navigator={this.props.navigator} title={enterprise.name}>
+      <HeaderView navigator={this.props.navigator} title={job.name}>
         <View style={styles.viewHeader}>
           <Image
             style={styles.placeholder}
@@ -40,7 +40,7 @@ class EnterpriseView extends Component {
         <View style={styles.viewBody}>
           <View style={styles.labelField}>
             <Text style={Typo.caption}>Token de acesso</Text>
-            <Text style={Typo.body1}>{enterprise.token}</Text>
+            <Text style={Typo.body1}>{job.token}</Text>
           </View>
           {this._renderMap()}
         </View>
@@ -49,7 +49,7 @@ class EnterpriseView extends Component {
   }
 
   _renderMap() {
-    if(!this.props.enterprise.place) {
+    if(!this.props.job.place) {
       return (<View />);
     }
     return (
@@ -58,7 +58,7 @@ class EnterpriseView extends Component {
         <View style={{flex: 1}}>
           <MapView
             region={{
-              ...this.props.enterprise.place,
+              ...this.props.job.place,
               latitudeDelta: 0.007,
               longitudeDelta: 0.007
             }}
@@ -69,12 +69,12 @@ class EnterpriseView extends Component {
             style={styles.map}
           >
             <MapView.Marker
-              coordinate={this.props.enterprise.place}
-              title={this.props.enterprise.name}
+              coordinate={this.props.job.place}
+              title={this.props.job.name}
             />
             <MapView.Circle
-              center={this.props.enterprise.place}
-              radius={this.props.enterprise.place.radius}
+              center={this.props.job.place}
+              radius={this.props.job.place.radius}
               strokeWidth={3}
               strokeColor="rgb(242, 21, 37)"
               fillColor="rgba(242, 21, 37, 0.38)"
@@ -116,4 +116,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default EnterpriseView;
+export default JobView;

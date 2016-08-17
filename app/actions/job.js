@@ -1,24 +1,24 @@
 'use strict'
 
 import {
-    ToastAndroid,
-    TimePickerAndroid
+  ToastAndroid,
+  TimePickerAndroid
 } from 'react-native';
 
 import {
-    initFetch,
-    finishFetch
+  initFetch,
+  finishFetch
 } from './fetchData';
 
 import {
-    getTime
+  getTime
 } from '../resource/timezonedb';
 
 import type {
-    Action,
-    ImageData,
-    ThunkAction,
-    Enterprise
+  Action,
+  ImageData,
+  ThunkAction,
+  Enterprise
 } from './types'
 
 import moment from 'moment';
@@ -28,37 +28,38 @@ import getBaseRef from '../env';
 
 const database = getBaseRef().database();
 
-function createJobReducer(enterprise: Enterprise): Action {
-    return {
-        type: 'CREATE_JOB',
-        payload: enterprise
-    }
-}
-function editEnterpriseAction(enterprise: Enterprise): Action {
+function createJobReducer(job: Enterprise): Action {
   return {
-      type: 'EDIT_JOB',
-      payload: enterprise
-    }
+    type: 'CREATE_JOB',
+    payload: job
+  }
 }
 
-function deleteEnterpriseAction(enterprise: Enterprise): Action {
+function editJobAction(job: Enterprise): Action {
   return {
-      type: 'DELETE_JOB',
-      payload: enterprise
-    }
+    type: 'EDIT_JOB',
+    payload: job
+  }
 }
 
-function renderRow(enterprise: Enterprise): Action {
-    return {
-        type: 'RENDER_ROW_JOB',
-        payload: enterprise
-    }
+function deleteJobAction(job: Enterprise): Action {
+  return {
+    type: 'DELETE_JOB',
+    payload: job
+  }
+}
+
+function renderRow(job: Enterprise): Action {
+  return {
+    type: 'RENDER_ROW_JOB',
+    payload: job
+  }
 }
 
 export function cleanSaved() {
-    return {
-        type: 'CLEAN_SAVED'
-    }
+  return {
+    type: 'CLEAN_SAVED'
+  }
 }
 
 export function jobJoin(token: String, user: Object): ThunkAction {
@@ -73,7 +74,7 @@ export function jobJoin(token: String, user: Object): ThunkAction {
         throw "Não encontrado";
       }
       let enterprise = null;
-      for(let key in enterpriseSearch.val()) {
+      for (let key in enterpriseSearch.val()) {
         enterprise = enterpriseSearch.val()[key];
       }
       if (enterprise.owner === user.id) {
@@ -81,22 +82,22 @@ export function jobJoin(token: String, user: Object): ThunkAction {
         throw "dono";
       }
       if (enterprise.users && Object.keys(enterprise.users).indexOf(user.id) > -1) {
-        ToastAndroid.show('Você já está vinculado a esta empresa', ToastAndroid.SHORT);
-        throw "já incluso";
+        if (enterprise.users[user.id].active) {
+          ToastAndroid.show('Você já está vinculado a esta empresa', ToastAndroid.SHORT);
+          throw "já incluso";
+        }
       }
 
       try {
-        let jobRef = await database.ref(`enterprise/${enterprise.key}/users`)
-          .set({
-            [user.id]: true
-          });
+        let jobRef = await database.ref(
+          `enterprise/${enterprise.key}/users/${user.id}`
+        ).set({ active: true });
 
-          await database.ref(`profile/${user.id}/jobs`).set({
-            [enterprise.key]: true
-          });
-
-          dispatch(createJobReducer(enterprise));
-
+        await database.ref(
+          `profile/${user.id}/jobs/${enterprise.key}`
+        ).set({ active: true });
+        enterprise.active = true;
+        dispatch(createJobReducer(enterprise));
       } catch (e) {
         ToastAndroid.show('Salvo com sucesso', ToastAndroid.SHORT);
       } finally {
@@ -112,30 +113,55 @@ export function jobJoin(token: String, user: Object): ThunkAction {
   }
 }
 
+export function deleteJob(job, userId) {
+  return dispatch => {
+    return new Promise(async(resolve, reject) => {
+      try {
+        await database.ref(`enterprise/${job.key}/users/${userId}`).set({
+          active: false
+        });
+        await database.ref(`profile/${userId}/jobs/${job.key}`)
+          .set({
+            active: false
+          });
+        job.active = false;
+        dispatch(editJobAction(job));
+        resolve(job);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+}
+
 export function loadJobs(userId) {
-    return async dispatch => {
-        try {
-            let path = `profile/${userId}/jobs`
-            let snapshot = await database.ref(path).once('value');
-            if (snapshot.exists()) {
-                let jobs = snapshot.val();
-                let jobsArray = [];
-                for (let key in jobs) {
-                    let pathJob = `enterprise/${key}`;
-                    let snapshotJob = await database.ref(pathJob).once('value');
-                    if (snapshotJob.exists()) {
-                        let enterprise = snapshotJob.val();
-                        dispatch(createJobReducer(enterprise));
-                        //jobsArray.push(jobsEntity);
-                    }
-                }
-                dispatch(renderRow(jobsArray));
-                return Promise.resolve('carregado');
-            };
-        } catch (e) {
-            console.log(e.message);
-            return Promise.reject(e);
+  return async dispatch => {
+    try {
+      let path = `profile/${userId}/jobs`;
+      let snapshot = await database.ref(path).once('value');
+      if (snapshot.exists()) {
+        let jobs = snapshot.val();
+        let jobsArray = [];
+        console.log(jobs);
+        for (let key in jobs) {
+          console.log(jobs[key]);
+          let isActive = typeof jobs[key] !== 'bool' && jobs[key].active;
+          let pathJob = `enterprise/${key}`;
+          let snapshotJob = await database.ref(pathJob).once('value');
+          if (snapshotJob.exists()) {
+            let enterprise = snapshotJob.val();
+            enterprise.active = isActive;
+            console.log(enterprise);
+            dispatch(createJobReducer(enterprise));
+          }
         }
+        // dispatch(renderRow(jobsArray));
+        return Promise.resolve('carregado');
+      };
+    } catch (e) {
+      console.log(e.message);
+      return Promise.reject(e);
     }
+  }
 
 }

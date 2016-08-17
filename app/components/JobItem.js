@@ -16,17 +16,17 @@ import ptBr from 'moment/locale/pt-br';
  */
 class JobItem extends Component {
 
-  // _onViewPress() {
-  //   this.context.onViewPress && this.context.onViewPress(this.props.enterprise)
-  // }
-  //
-  // _onEditPress() {
-  //   this.context.onEditPress && this.context.onEditPress(this.props.enterprise)
-  // }
-  //
-  // _onLocationPress() {
-  //   this.context.onLocationPress && this.context.onLocationPress(this.props.enterprise)
-  // }
+  _onViewPress() {
+    this.context.onViewPress && this.context.onViewPress(this.props.job)
+  }
+
+  _onEditPress() {
+    this.context.onEditPress && this.context.onEditPress(this.props.job)
+  }
+
+  _onDeletePress() {
+    this.context.onDeletePress && this.context.onDeletePress(this.props.job)
+  }
 
   /**
    * Renderiza o componente
@@ -41,10 +41,31 @@ class JobItem extends Component {
     return (
       <View style={[styles.container, ...style]}>
 
-
         {/*Nome*/}
         <View style={styles.timeWrapper}>
           <Text style={styles.time}>{this.props.job.name}</Text>
+        </View>
+        <View style={styles.buttonsGroupWrapper}>
+
+          {/*Botão de visualização*/}
+          <Touchable
+            onPress={this._onViewPress.bind(this)}
+          >
+            <View style={styles.button}>
+              <Icon name="remove-red-eye" style={styles.icon} />
+            </View>
+          </Touchable>
+
+          {/*botão de deletar*/}
+          <Touchable
+            onPress={this._onDeletePress.bind(this)}
+          >
+            <View style={styles.button}>
+              <Icon
+                name="close"
+                style={[styles.icon, styles.iconDelete]} />
+            </View>
+          </Touchable>
         </View>
 
       </View>
@@ -60,7 +81,7 @@ JobItem.propTypes = {
 JobItem.contextTypes = {
   onEditPress: PropTypes.func,
   onViewPress: PropTypes.func,
-  onLocationPress: PropTypes.func,
+  onDeletePress: PropTypes.func
 }
 
 // Estilos do componente
@@ -107,7 +128,7 @@ const styles = StyleSheet.create({
     borderRadius:50,
     backgroundColor: 'rgba(170, 180, 182, 0.64)'
   },
-  iconLocation: {
+  iconDelete: {
     color: 'red'
   }
 });

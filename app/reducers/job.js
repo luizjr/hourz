@@ -35,8 +35,13 @@ export default function jobReducer(state = initialState, action: Action) {
           .set('jobs', newState.get('jobs').push(action.payload))
           .toJS();
       }
-      return newState
-        .set('jobs', newState.get('jobs').setIn(index, action.payload)).toJS();
+      return newState.set(
+        'jobs',
+        newState.get('jobs').update(
+          index,
+          (value) => value.merge(Immutable.fromJS(action.payload))
+        )
+      ).toJS();
 
     case 'DELETE_JOB':
       return newState.set(
@@ -53,13 +58,6 @@ export default function jobReducer(state = initialState, action: Action) {
       index = newState.get('jobs').findIndex(
         (value) => value.get('key') === payload.get('key')
       );
-      console.log(newState.set(
-        'jobs',
-        newState.get('jobs').update(
-          index,
-          (value) => value.merge(payload)
-        )
-      ).toJS());
       return newState.set(
         'jobs',
         newState.get('jobs').update(

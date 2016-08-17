@@ -5,8 +5,22 @@ import {connect} from 'react-redux';
 import { enterpriseSelector } from '../../reselect/enterprises';
 import ActButton from '../../components/common/ActButton';
 import Color from '../../resource/color';
+import getBaseRef from '../../env';
+
+const database = getBaseRef().database();
 
 class ViewEnterprise extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: []
+    }
+  }
+
+  componentDidMount() {
+    this.usersRef = database.ref(`enterprise/${this.props.enterprise.key}`);
+  }
   _getActionButton() {
     let actionItems = [
       {

@@ -185,7 +185,7 @@ export function editPoint(selectedPoint, observation, userId) {
       if (action !== TimePickerAndroid.dismissedAction) {
 
         let time = moment();
-        let path = `points/${userId}/${selectedPoint.date}/${selectedPoint.key}`;
+        let path = `points/${selectedPoint.key}`;
         let pointRef = database.ref(path);
         let point = {
           ...selectedPoint,
