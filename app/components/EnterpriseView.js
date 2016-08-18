@@ -38,13 +38,19 @@ class EnterpriseView extends Component {
           </Image>
         </View>
         <View style={styles.viewBody}>
-          <View style={styles.labelField}>
-            <Text style={Typo.caption}>Token de acesso</Text>
-            <Text style={Typo.body1}>{enterprise.token}</Text>
-          </View>
-          <View style={styles.labelField}>
-            <Text style={Typo.caption}>Nº de colaboradores</Text>
-            <Text style={Typo.body1}>0</Text>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 1}}>
+              <View style={styles.labelField}>
+                <Text style={Typo.caption}>Token de acesso</Text>
+                <Text style={Typo.body1}>{enterprise.token}</Text>
+              </View>
+            </View>
+            <View style={{flex: 1}}>
+              <View style={styles.labelField}>
+                <Text style={Typo.caption}>Nº de colaboradores</Text>
+                <Text style={Typo.body1}>{Object.keys(enterprise.employees).length}</Text>
+              </View>
+            </View>
           </View>
           {this._renderMap()}
         </View>
@@ -58,7 +64,7 @@ class EnterpriseView extends Component {
     }
     return (
       <View style={{flex: 1}}>
-        <Text style={Typo.caption}>Local</Text>
+        <Text style={Typo.caption}>Localização da empresa</Text>
         <View style={{flex: 1}}>
           <MapView
             region={{

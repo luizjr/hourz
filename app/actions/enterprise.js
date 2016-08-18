@@ -154,7 +154,8 @@ export function loadEnterprises(userId) {
           let snapshotEnterprise = await database.ref(pathEnterprise).once('value');
           if (snapshotEnterprise.exists()) {
             let enterprisesEntity = snapshotEnterprise.val();
-            enterprisesEntity.employees = await getEnterpriseUsers(enterprisesEntity);
+            enterprisesEntity.employees = {};
+            // enterprisesEntity.employees = await getEnterpriseUsers(enterprisesEntity);
             console.log(enterprisesEntity);
             enterprisesArray.push(enterprisesEntity);
           }
@@ -167,6 +168,29 @@ export function loadEnterprises(userId) {
     }
   }
 
+}
+
+export function addEmployee({enterprise, user, key}) {
+  return {
+    type: 'ADD_EMPLOYEE',
+    payload: {
+      enterprise,
+      user: {
+        ...user,
+        key
+      }
+    }
+  };
+}
+
+export function removeEmployee({enterprise, key}) {
+  return {
+    type: 'REMOVE_EMPLOYEE',
+    payload: {
+      enterprise,
+      key
+    }
+  };
 }
 
 async function getEnterpriseUsers(enterprise) {

@@ -79,6 +79,7 @@ class HeaderAndroid extends Component {
           navIcon={leftItem && leftItem.icon}
           onIconClicked={leftItem && leftItem.onPress}
           title={this.props.title}
+          subtitle={this.props.subtitle}
           titleColor={textColor}
           subtitleColor={textColor}
           actions={actions}

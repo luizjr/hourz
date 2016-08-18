@@ -16,6 +16,7 @@ import PointView from './components/PointView';
 import NewEnterprise from './containers/enterprise/newEnterprise';
 import EditEnterprise from './containers/enterprise/editEnterprise';
 import ViewEnterprise from './containers/enterprise/viewEnterprise';
+import ViewEnterprisePoints from './containers/enterprise/viewEnterprisePoints';
 import ViewJob from './containers/enterprise/viewJob';
 
 /**
@@ -169,6 +170,8 @@ class HourzNavigator extends Component {
             return (<EditEnterprise route={route} navigator={navigator} />);
           case 'view_enterprise':
             return (<ViewEnterprise route={route} navigator={navigator} />);
+          case 'view_enterprise_points':
+            return (<ViewEnterprisePoints route={route} navigator={navigator} />);
             case 'view_job':
               return (<ViewJob route={route} navigator={navigator} />);
 

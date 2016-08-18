@@ -6,12 +6,22 @@ const initialState = {
   enterprises: []
 };
 
-
+function employeesReducer(employees, action) {
+  switch (action.type) {
+    case 'ADD_EMPLOYEE':
+      let user = action.payload.user;
+      return employees.set(user.key, user);
+    case 'REMOVE_EMPLOYEE':
+      return employees.delete(action.payload.key);
+    default:
+      return employees;
+  }
+}
 
 export default function enterpriseReducer(state: List = initialState, action: Action) {
 
   // cria um novo state
-  let newState = Immutable.fromJS(state);
+  let index, payload, newState = Immutable.fromJS(state);
 
   switch (action.type) {
     case 'RESET_AUTH':
@@ -43,17 +53,10 @@ export default function enterpriseReducer(state: List = initialState, action: Ac
       ).toJS();
 
     case 'EDIT_ENTERPRISE':
-      let payload = Immutable.Map(action.payload);
-      let index = newState.get('enterprises').findIndex(
+      payload = Immutable.Map(action.payload);
+      index = newState.get('enterprises').findIndex(
         (value) => value.get('key') === payload.get('key')
       );
-      console.log(newState.set(
-        'enterprises',
-        newState.get('enterprises').update(
-          index,
-          (value) => value.merge(payload)
-        )
-      ).toJS());
       return newState.set(
         'enterprises',
         newState.get('enterprises').update(
@@ -69,6 +72,23 @@ export default function enterpriseReducer(state: List = initialState, action: Ac
         .set('enterprises', action.payload)
         .toJS();
 
+    case 'ADD_EMPLOYEE':
+    case 'REMOVE_EMPLOYEE':
+      index = newState.get('enterprises').findIndex(
+        (value) => value.get('key') === action.payload.enterprise.key
+      );
+      return newState.set(
+        'enterprises',
+        newState.get('enterprises').update(
+          index,
+          (value) => value.set(
+            'employees', employeesReducer(
+              newState.get('enterprises').get(index).get('employees'),
+              action
+            )
+          )
+        )
+      ).toJS();
     default:
       return state;
   }
