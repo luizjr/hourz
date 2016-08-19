@@ -51,7 +51,6 @@ class ViewEnterprise extends Component {
                 user: userSnap.val(),
                 key: userSnap.key
               });
-              console.log(userSnap.val());
             })
           }
         };

@@ -9,6 +9,7 @@ import {
 import {
   connect
 } from 'react-redux';
+import moment from 'moment';
 import {
   enterpriseSelector
 } from '../../reselect/enterprises';
@@ -24,22 +25,68 @@ class ViewEnterprisePoints extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      users: []
+      selectedMonth: null,
+      points: {}
     }
   }
 
   componentDidMount() {
+    let today = moment();
+    let month = {
+      month: today.month(),
+      year: today.year()
+    };
+    this.setState({
+      selectedMonth: month
+    });
+
+    this.enterprisePointsRef = database.ref(
+      `enterprise/${this.props.enterprise.key}/points/${today.format('YYYY/MM')}`
+    );
+
+    this.onValue = this.enterprisePointsRef.on('value', async snapshot => {
+      if(snapshot.exists()) {
+        let days = snapshot.val();
+
+        try {
+          for(day in days) {
+            let points = days[day];
+            for (key in points) {
+              let pointRef = database.ref(`points/${key}`);
+              let pointSnap = await pointRef.once('value');
+              this.setState({
+                points: {
+                  ...this.state.points,
+                  [day]: {
+                    ...this.state.points[day],
+                    [key]: pointSnap.val()
+                  }
+                }
+              });
+            }
+          }
+        } catch (e) {
+
+        } finally {
+          console.log(this.state.points);
+        }
+      }
+    });
 
   }
 
   componentWillUnmount() {
-
+    this.enterprisePointsRef.off('value', this.onValue);
   }
 
   render() {
     return (
       <View style={{flex:1}}>
-        <EnterprisePointsView enterprise={this.props.enterprise} navigator={this.props.navigator}/>
+        <EnterprisePointsView
+          enterprise={this.props.enterprise}
+          month={this.state.selectedMonth}
+          navigator={this.props.navigator}
+          points={this.state.points}/>
       </View>
     );
   }
