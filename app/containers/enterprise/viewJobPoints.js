@@ -20,7 +20,7 @@ import EnterprisePointsView from '../../components/EnterprisePointsView';
 
 const database = getBaseRef().database();
 
-class ViewEnterprisePoints extends Component {
+class ViewJobPoints extends Component {
 
   constructor(props) {
     super(props);
@@ -107,4 +107,4 @@ function mapDispatchToProps(dispatch) {
   return {}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewEnterprisePoints);
+export default connect(mapStateToProps, mapDispatchToProps)(ViewJobPoints);

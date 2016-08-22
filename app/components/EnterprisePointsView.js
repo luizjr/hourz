@@ -10,6 +10,7 @@ import {
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import HeaderView from './HeaderView';
+import Touchable from './common/Touchable';
 import Color from '../resource/color';
 import Typo from '../resource/typography';
 
@@ -22,25 +23,42 @@ class EnterprisePointsView extends Component {
       rowHasChanged: (r1, r2) => r1 !== r2
     });
     this.state = {
-      dataSource: dataSource
+      dataSource: dataSource,
+      days: [],
+      enterprise: {
+        employees: []
+      }
     };
   }
 
   componentDidMount() {
     let days = Object.keys(this.props.points).sort();
-    console.log(this.props.points);
 
     this.setState({
-      dataSource : this.state.dataSource.cloneWithRows(days)
+      dataSource : this.state.dataSource.cloneWithRows(days),
+      days
     });
   }
 
   componentWillReceiveProps(newProps) {
     let days = Object.keys(newProps.points).sort();
-    // console.log(this.props.points);
     this.setState({
-      dataSource : this.state.dataSource.cloneWithRows(days)
+      dataSource : this.state.dataSource.cloneWithRows(days),
+      days,
+      enterprise: newProps.enterprise
     });
+  }
+
+  _onViewPress() {
+    this.context.onViewPress && this.context.onViewPress(this.props.point)
+  }
+
+  _onEditPress() {
+    this.context.onEditPress && this.context.onEditPress(this.props.point)
+  }
+
+  _onLocationPress() {
+    this.context.onLocationPress && this.context.onLocationPress(this.props.point)
   }
 
   renderRow(value, idSec, idRow) {
@@ -65,7 +83,10 @@ class EnterprisePointsView extends Component {
             let time = moment({hour, minute}).format('HH:mm');
             let iconStyle = point.pointType === 'in' ? styles.iconIn : styles.iconOut;
             let edited = point.edited ? '*': '';
-            // let user = this.props.enterprise ? this.props.enterprise.employees.find(value => value.id = point.userId) : null;
+            let user = this.state.enterprise.employees[point.userId];
+            if(!user) {
+              user = this.props.user.id === point.userId ? this.props.user : {name:''};
+            }
             return (
               <View key={key} style={{
                 flex: 1,
@@ -79,7 +100,30 @@ class EnterprisePointsView extends Component {
                 </View>
                 <View style={styles.timeWrapper}>
                   <Text style={styles.time}>{time}{edited}</Text>
-                  <Text>{}</Text>
+                  <Text>{user.name}</Text>
+                </View>
+                {/*Botões*/}
+                <View style={styles.buttonsGroupWrapper}>
+
+                  {/*botão de localização*/}
+                  <Touchable
+                    onPress={this._onLocationPress.bind(this)}
+                  >
+                    <View style={styles.button}>
+                      <Icon
+                        name="my-location"
+                        style={[styles.icon, styles.iconLocation]} />
+                    </View>
+                  </Touchable>
+
+                  {/*Botão de visualização*/}
+                  <Touchable
+                    onPress={this._onViewPress.bind(this)}
+                  >
+                    <View style={styles.button}>
+                      <Icon name="remove-red-eye" style={styles.icon} />
+                    </View>
+                  </Touchable>
                 </View>
               </View>
             );
@@ -98,15 +142,43 @@ class EnterprisePointsView extends Component {
         title={`${enterprise.name} - Pontos`}
         subtitle={moment({month, year}).format('MMMM/YYYY')}
       >
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow.bind(this)}
+        <ScrollView
           style={styles.listView}
-          enableEmptySections={true}
-        />
+        >
+          {this.state.days.map(this.renderRow.bind(this))}
+        </ScrollView>
       </HeaderView>
     );
   }
+}
+
+EnterprisePointsView.propTypes = {
+  enterprise: PropTypes.object,
+  month: PropTypes.shape({
+    month: PropTypes.any,
+    year: PropTypes.any
+  }),
+  navigator: PropTypes.any.isRequired,
+  points: PropTypes.object
+};
+
+EnterprisePointsView.defaultProps = {
+  enterprise: {
+    employees: []
+  },
+  month: {
+    month: '',
+    year: ''
+  },
+  user: {
+    id: null
+  }
+}
+
+EnterprisePointsView.contextTypes = {
+  onEditPress: PropTypes.func,
+  onViewPress: PropTypes.func,
+  onLocationPress: PropTypes.func,
 }
 
 // Estilo do componente

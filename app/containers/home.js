@@ -179,17 +179,19 @@ class Home extends Component {
 
     try {
       let time = moment();
-      if(!this.state.gpsOpen) {
-        throw {message: "Erro ao pegar a localização"};
-      }
+      let {coords} = await getCurrentPosition();
+      console.log(coords);
+      // if(!this.state.gpsOpen) {
+      //   throw {message: "Erro ao pegar a localização"};
+      // }
 
-      let position = this.state.myPlace;
+      // let coords = this.state.myPlace;
 
       // Verifica se o dispositivo está no raio da empresa
       if(job) {
         if (job.place) {
           let {latitude, longitude, radius, blocked} = job.place;
-          if(!geolib.isPointInCircle(position, job.place, radius)) {
+          if(!geolib.isPointInCircle(coords, job.place, radius)) {
             if (blocked) {
               throw {message: "Você não pode bater o ponto fora da empresa!"};
             }
@@ -206,8 +208,8 @@ class Home extends Component {
       try {
         this.setState({fetchData: 'Buscando a hora da rede'});
         let timezone = await getTime({
-          latitude: position.latitude,
-          longitude: position.longitude
+          latitude: coords.latitude,
+          longitude: coords.longitude
         });
         // converte o timestamp
         time = moment.unix(timezone.timestamp).add(3, 'hour');
@@ -220,7 +222,7 @@ class Home extends Component {
         let date = time.format('YYYY/MM/DD');
         let userId = this.props.user.id;
         let hittedPoint = await this.props.hitPoint(
-          {pointType, position, picture, date, time, job, userId}
+          {pointType, position: coords, picture, date, time, job, userId}
         );
         ToastAndroid.show("Ponto batido.", ToastAndroid.SHORT);
       }

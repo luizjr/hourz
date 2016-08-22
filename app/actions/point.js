@@ -121,6 +121,18 @@ export function hitPoint({
       let pointKey = pointRef.key;
       try {
         let base64string = `data:${picture.type};base64,${picture.data}`;
+        // let storageRef = storage.child(`points/image.jpg`);
+        // let uploadTask = storageRef.putString(
+        //   picture.data,
+        //   firebase.storage.StringFormat.BASE64URL,
+        //   {
+        //     contentType: picture.type
+        //   }
+        // );
+
+        let snapshot = await uploadTask.then();
+        console.log(snapshot);
+
         let jobKey = job ? job.key : '';
         let point = {
           key: pointKey,
@@ -153,6 +165,7 @@ export function hitPoint({
           throw { name: 'FirebaseError', message: 'Erro ao salvar os dados' };
         }
       } catch (e) {
+        console.log(e);
         reject(e.message);
       }
     });
