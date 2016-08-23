@@ -1,13 +1,19 @@
 import { ToastAndroid, TimePickerAndroid } from 'react-native';
 import moment from 'moment';
 import Immutable from 'immutable';
+import base64url from "base64url";
+import RNFetchBlob from 'react-native-fetch-blob';
 import {initFetch, finishFetch} from './fetchData';
 import {getTime} from '../resource/timezonedb';
 import getBaseRef from '../env';
-import type { Action, ImageData, Point, PointType, ThunkAction } from './types'
+import type { Action, ImageData, Point, PointType, ThunkAction } from './types';
 
 // depreciado
 // const fbase = getBaseRef();
+
+const fs = RNFetchBlob.fs;
+const Blob = RNFetchBlob.polyfill.Blob;
+window.Blob = Blob;
 
 const database = getBaseRef().database();
 const storage = getBaseRef().storage().ref();
@@ -121,14 +127,17 @@ export function hitPoint({
       let pointKey = pointRef.key;
       try {
         let base64string = `data:${picture.type};base64,${picture.data}`;
-        // let storageRef = storage.child(`points/image.jpg`);
-        // let uploadTask = storageRef.putString(
-        //   picture.data,
-        //   firebase.storage.StringFormat.BASE64URL,
-        //   {
-        //     contentType: picture.type
-        //   }
-        // );
+        let storageRef = storage.child(`points/image.jpg`);
+        console.log(picture);
+        console.log(base64url.fromBase64(picture.data));
+        let uploadTask = storageRef.putString(
+          base64url.fromBase64(picture.data),
+          firebase.storage.StringFormat.BASE64URL,
+          {
+            contentType: picture.type,
+            contentEncoding: 'BASE64'
+          }
+        );
 
         let snapshot = await uploadTask.then();
         console.log(snapshot);
@@ -152,18 +161,18 @@ export function hitPoint({
         let userRef = database.ref(userPath);
         let enterprisePath = job ? `enterprise/${jobKey}/points/${date}/${pointKey}` : null;
 
-        try {
-          await pointRef.set(point);
-          await userRef.set(true);
-          if(enterprisePath) {
-            enterpriseRef = database.ref(enterprisePath);
-            await enterpriseRef.set(true);
-          };
-          dispatch(registerPoint(point));
-          resolve(point);
-        } catch (e) {
-          throw { name: 'FirebaseError', message: 'Erro ao salvar os dados' };
-        }
+        // try {
+        //   await pointRef.set(point);
+        //   await userRef.set(true);
+        //   if(enterprisePath) {
+        //     enterpriseRef = database.ref(enterprisePath);
+        //     await enterpriseRef.set(true);
+        //   };
+        //   dispatch(registerPoint(point));
+        //   resolve(point);
+        // } catch (e) {
+        //   throw { name: 'FirebaseError', message: 'Erro ao salvar os dados' };
+        // }
       } catch (e) {
         console.log(e);
         reject(e.message);
