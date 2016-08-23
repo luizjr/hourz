@@ -39,6 +39,7 @@ import getBaseRef from '../env';
 const fs = RNFetchBlob.fs;
 const Blob = RNFetchBlob.polyfill.Blob;
 window.Blob = Blob;
+window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
 
 const database = getBaseRef().database();
 const storage = getBaseRef().storage().ref();
@@ -214,13 +215,13 @@ class Home extends Component {
       }
 
       try {
-        this.setState({fetchData: 'Buscando a hora da rede'});
-        let timezone = await getTime({
-          latitude: coords.latitude,
-          longitude: coords.longitude
-        });
-        // converte o timestamp
-        time = moment.unix(timezone.timestamp).add(3, 'hour');
+        // this.setState({fetchData: 'Buscando a hora da rede'});
+        // let timezone = await getTime({
+        //   latitude: coords.latitude,
+        //   longitude: coords.longitude
+        // });
+        // // converte o timestamp
+        // time = moment.unix(timezone.timestamp).add(3, 'hour');
 
 
       } catch (e) {
