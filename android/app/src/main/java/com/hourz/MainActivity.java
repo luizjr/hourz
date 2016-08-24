@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 
 import com.facebook.react.ReactActivity;
+import com.fileopener.FileOpenerPackage;
+import com.rnfs.RNFSPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.xebia.reactnative.TabLayoutPackage;
@@ -45,6 +47,8 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
                 new MainReactPackage(),
+            new FileOpenerPackage(),
+            new RNFSPackage(),
                 new RNFetchBlobPackage(),
                 new LinearGradientPackage(),
                 new TabLayoutPackage(),
