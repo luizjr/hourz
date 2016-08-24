@@ -126,21 +126,7 @@ export function hitPoint({
       let pointRef = database.ref('points').push();
       let pointKey = pointRef.key;
       try {
-        let base64string = `data:${picture.type};base64,${picture.data}`;
-        let storageRef = storage.child(`points/image.jpg`);
-        console.log(picture);
-        console.log(base64url.fromBase64(picture.data));
-        let uploadTask = storageRef.putString(
-          base64url.fromBase64(picture.data),
-          firebase.storage.StringFormat.BASE64URL,
-          {
-            contentType: picture.type,
-            contentEncoding: 'BASE64'
-          }
-        );
 
-        let snapshot = await uploadTask.then();
-        console.log(snapshot);
 
         let jobKey = job ? job.key : '';
         let point = {
@@ -161,18 +147,18 @@ export function hitPoint({
         let userRef = database.ref(userPath);
         let enterprisePath = job ? `enterprise/${jobKey}/points/${date}/${pointKey}` : null;
 
-        // try {
-        //   await pointRef.set(point);
-        //   await userRef.set(true);
-        //   if(enterprisePath) {
-        //     enterpriseRef = database.ref(enterprisePath);
-        //     await enterpriseRef.set(true);
-        //   };
-        //   dispatch(registerPoint(point));
-        //   resolve(point);
-        // } catch (e) {
-        //   throw { name: 'FirebaseError', message: 'Erro ao salvar os dados' };
-        // }
+        try {
+          await pointRef.set(point);
+          await userRef.set(true);
+          if(enterprisePath) {
+            enterpriseRef = database.ref(enterprisePath);
+            await enterpriseRef.set(true);
+          };
+          dispatch(registerPoint(point));
+          resolve(point);
+        } catch (e) {
+          throw { name: 'FirebaseError', message: 'Erro ao salvar os dados' };
+        }
       } catch (e) {
         console.log(e);
         reject(e.message);

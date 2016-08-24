@@ -39,7 +39,7 @@ import getBaseRef from '../env';
 const fs = RNFetchBlob.fs;
 const Blob = RNFetchBlob.polyfill.Blob;
 window.Blob = Blob;
-window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
+// window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
 
 const database = getBaseRef().database();
 const storage = getBaseRef().storage().ref();
@@ -227,26 +227,26 @@ class Home extends Component {
       } catch (e) {
         ToastAndroid.show('Erro ao receber a hora da rede.', ToastAndroid.SHORT);
       } finally {
-        let rnfbURI = RNFetchBlob.wrap(picture.path);
-        this.setState({fetchData: 'Gerando o blob da imagem'});
-        let blob = await Blob.build(rnfbURI, { type : picture.type});
-        let storageRef = storage.child(`points/image.jpg`);
-        this.setState({fetchData: 'Enviando imagem'});
-        let uploadTask = storageRef.put(
-          blob,
-          {
-            contentType: picture.type
-          }
-        );
-        let snapshot = await uploadTask.then();
-        console.log(snapshot);
-        this.setState({fetchData: 'Salvando os dados'});
+        // let rnfbURI = RNFetchBlob.wrap(picture.path);
+        // this.setState({fetchData: 'Gerando o blob da imagem'});
+        // let blob = await Blob.build(rnfbURI, { type : picture.type});
+        // let storageRef = storage.child(`points/image.jpg`);
+        // this.setState({fetchData: 'Enviando imagem'});
+        // let uploadTask = storageRef.put(
+        //   blob,
+        //   {
+        //     contentType: picture.type
+        //   }
+        // );
+        // let snapshot = await uploadTask.then();
+        // console.log(snapshot);
+        // this.setState({fetchData: 'Salvando os dados'});
         let date = time.format('YYYY/MM/DD');
         let userId = this.props.user.id;
-        // let hittedPoint = await this.props.hitPoint(
-        //   {pointType, position: coords, picture, date, time, job, userId}
-        // );
-        // ToastAndroid.show("Ponto batido.", ToastAndroid.SHORT);
+        let hittedPoint = await this.props.hitPoint(
+          {pointType, position: coords, picture, date, time, job, userId}
+        );
+        ToastAndroid.show("Ponto batido.", ToastAndroid.SHORT);
       }
 
     } catch (e) {
