@@ -13,8 +13,6 @@ import HeaderView from './HeaderView';
 import Touchable from './common/Touchable';
 import Color from '../resource/color';
 import Typo from '../resource/typography';
-// import ActionButton from 'react-native-action-button';
-import ActButton from './common/ActButton';
 
 class EnterprisePointsView extends Component {
 
@@ -149,8 +147,6 @@ class EnterprisePointsView extends Component {
         >
           {this.state.days.map(this.renderRow.bind(this))}
         </ScrollView>
-        <ActButton onPress={() => alert('gerando relatorio')}
-        icon={<Icon name='view-list'/>} buttonColor='red'/>
       </HeaderView>
     );
   }
