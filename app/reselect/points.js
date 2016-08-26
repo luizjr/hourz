@@ -3,6 +3,7 @@ import moment from 'moment';
 
 const officeHoursSelector = state => state.officeHours;
 const currentDateSelector = state => state.currentDate;
+const currentMonthSelector = state => state.currentMonth;
 // const pointsOfDay = (state, currentDate) => {
 //   console.log(currentDate);
 //   let arr = [];
@@ -51,6 +52,31 @@ export const pointsOfDaySelector = createSelector(
     }
 
     return arr;
+  }
+);
+
+export const pointsOfMonthSelector = createSelector(
+  // pointsOfDay, pointsOfDay => pointsOfDay
+  officeHoursSelector,
+  currentMonthSelector,
+  (state, job) => job,
+  (officeHours, currentMonth, job) => {
+    let points = {};
+    let date;
+    for(let i = 1; i <= 31; i++) {
+      date = moment({day: i, ...currentMonth}).format('YYYY/MM/DD');
+      if(officeHours[date]){
+        console.log(job);
+        console.log(officeHours[date]);
+        datePoints = officeHours[date].points.filter(
+          value => value.jobKey === job.key
+        );
+        if(datePoints.length > 0) {
+          points[i] = datePoints;
+        }
+      }
+    }
+    return points;
   }
 );
 

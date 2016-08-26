@@ -13,6 +13,7 @@ import HeaderView from './HeaderView';
 import Touchable from './common/Touchable';
 import Color from '../resource/color';
 import Typo from '../resource/typography';
+import ActionButton from 'react-native-action-button';
 
 class EnterprisePointsView extends Component {
 
@@ -116,6 +117,15 @@ class EnterprisePointsView extends Component {
                     </View>
                   </Touchable>
 
+                  {/*botão de editar*/}
+                  <Touchable
+                    onPress={this._onEditPress.bind(this)}
+                  >
+                    <View style={styles.button}>
+                      <Icon name="edit" style={styles.icon} />
+                    </View>
+                  </Touchable>
+
                   {/*Botão de visualização*/}
                   <Touchable
                     onPress={this._onViewPress.bind(this)}
@@ -141,12 +151,20 @@ class EnterprisePointsView extends Component {
         navigator={this.props.navigator}
         title={`${enterprise.name} - Pontos`}
         subtitle={moment({month, year}).format('MMMM/YYYY')}
+        rightItem={{
+          layout: 'icon',
+          title: 'Filter',
+          icon: require('../resource/img/filter.png'),
+          onPress: () => alert('Filtro')
+        }}
       >
         <ScrollView
           style={styles.listView}
         >
           {this.state.days.map(this.renderRow.bind(this))}
         </ScrollView>
+        <ActionButton onPress={() => alert('gerando relatorio')}
+        icon={<Icon name='show-chart' style={{color: 'white'}}/>} buttonColor={Color.color.AccentColor}/>
       </HeaderView>
     );
   }

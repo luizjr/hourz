@@ -18,6 +18,7 @@ import EditEnterprise from './containers/enterprise/editEnterprise';
 import ViewEnterprise from './containers/enterprise/viewEnterprise';
 import ViewEnterprisePoints from './containers/enterprise/viewEnterprisePoints';
 import ViewJob from './containers/enterprise/viewJob';
+import ViewJobPoints from './containers/enterprise/viewJobPoints';
 
 /**
  * Componente que cria o navigator e implementa as funções
@@ -173,7 +174,7 @@ class HourzNavigator extends Component {
           case 'view_enterprise_points':
             return (<ViewEnterprisePoints route={route} navigator={navigator} />);
             case 'view_job':
-              return (<ViewJob route={route} navigator={navigator} />);
+              return (<ViewJobPoints route={route} navigator={navigator} />);
 
           default:
             // se o usuário está logado, retorna o sidemenu,

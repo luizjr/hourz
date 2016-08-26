@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  Image,
   ListView,
   RefreshControl,
   ScrollView,
@@ -13,7 +14,7 @@ import HeaderView from './HeaderView';
 import Touchable from './common/Touchable';
 import Color from '../resource/color';
 import Typo from '../resource/typography';
-// import ActionButton from 'react-native-action-button';
+import ActionButton from 'react-native-action-button';
 import ActButton from './common/ActButton';
 
 class EnterprisePointsView extends Component {
@@ -65,6 +66,25 @@ class EnterprisePointsView extends Component {
 
   renderRow(value, idSec, idRow) {
     let points = Object.keys(this.props.points[value]);
+    let users = [this.props.user];
+    let employee;
+    for(let key in this.state.enterprise.employees) {
+      employee = this.state.enterprise.employees[key];
+      employee.id = key;
+      users.push(employee);
+    }
+
+    users.sort((a,b) => {
+      if (a.name > b.name) {
+        return 1;
+      }
+      if (a.name < b.name) {
+        return -1;
+      }
+      // a must be equal to b
+      return 0;
+    });
+
     // let day = moment(this.props.)
     return (
       <View key={value}>
@@ -79,53 +99,84 @@ class EnterprisePointsView extends Component {
           </Text>
         </View>
         <View>
-          {points.map(key => {
-            let point = this.props.points[value][key];
-            let {hour, minute} = point;
-            let time = moment({hour, minute}).format('HH:mm');
-            let iconStyle = point.pointType === 'in' ? styles.iconIn : styles.iconOut;
-            let edited = point.edited ? '*': '';
-            let user = this.state.enterprise.employees[point.userId];
-            if(!user) {
-              user = this.props.user.id === point.userId ? this.props.user : {name:''};
+          {users.map(user => {
+            let userPoints = points.filter(
+              key => this.props.points[value][key].userId === user.id
+            );
+
+            let image = require('../resource/img/user_placeholder.png');
+            if(user.image) {
+              image = {
+                uri: user.image.data,
+                isStatic: true
+              }
             }
+
+            if(userPoints.length === 0) {
+              return (<View />);
+            }
+
             return (
-              <View key={key} style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: 10
-              }}>
-                <View style={styles.fluxIconWrapper}>
-                  <Icon name='fingerprint' style={[styles.icon, iconStyle]} />
-                </View>
-                <View style={styles.timeWrapper}>
-                  <Text style={styles.time}>{time}{edited}</Text>
+              <View key={`${user.id}-${value}`}>
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderColor: '#cccccc'
+                }}>
+                  <Image source={image} style={styles.placeholder} />
                   <Text>{user.name}</Text>
                 </View>
-                {/*Botões*/}
-                <View style={styles.buttonsGroupWrapper}>
+                <View>
+                  {userPoints.map(key => {
+                    let point = this.props.points[value][key];
+                    let {hour, minute} = point;
+                    let time = moment({hour, minute}).format('HH:mm');
+                    let iconStyle = point.pointType === 'in' ? styles.iconIn : styles.iconOut;
+                    let edited = point.edited ? '*': '';
+                    return (
+                      <View key={key} style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: 10,
+                        marginLeft: 20,
+                        borderBottomWidth: 1,
+                        borderColor: '#cccccc'
+                      }}>
+                        <View style={styles.fluxIconWrapper}>
+                          <Icon name='fingerprint' style={[styles.icon, iconStyle]} />
+                        </View>
+                        <View style={styles.timeWrapper}>
+                          <Text style={styles.time}>{time}{edited}</Text>
+                        </View>
+                        {/*Botões*/}
+                        <View style={styles.buttonsGroupWrapper}>
 
-                  {/*botão de localização*/}
-                  <Touchable
-                    onPress={this._onLocationPress.bind(this)}
-                  >
-                    <View style={styles.button}>
-                      <Icon
-                        name="my-location"
-                        style={[styles.icon, styles.iconLocation]} />
-                    </View>
-                  </Touchable>
+                          {/*botão de localização*/}
+                          <Touchable
+                            onPress={this._onLocationPress.bind(this)}
+                          >
+                            <View style={styles.button}>
+                              <Icon
+                                name="my-location"
+                                style={[styles.icon, styles.iconLocation]} />
+                            </View>
+                          </Touchable>
 
-                  {/*Botão de visualização*/}
-                  <Touchable
-                    onPress={this._onViewPress.bind(this)}
-                  >
-                    <View style={styles.button}>
-                      <Icon name="remove-red-eye" style={styles.icon} />
-                    </View>
-                  </Touchable>
+                          {/*Botão de visualização*/}
+                          <Touchable
+                            onPress={this._onViewPress.bind(this)}
+                          >
+                            <View style={styles.button}>
+                              <Icon name="remove-red-eye" style={styles.icon} />
+                            </View>
+                          </Touchable>
+                        </View>
+                      </View>
+                    );
+                  })}
                 </View>
               </View>
             );
@@ -143,14 +194,20 @@ class EnterprisePointsView extends Component {
         navigator={this.props.navigator}
         title={`${enterprise.name} - Pontos`}
         subtitle={moment({month, year}).format('MMMM/YYYY')}
+        rightItem={{
+          layout: 'icon',
+          title: 'Filter',
+          icon: require('../resource/img/filter.png'),
+          onPress: () => alert('Filtro')
+        }}
       >
         <ScrollView
           style={styles.listView}
         >
           {this.state.days.map(this.renderRow.bind(this))}
         </ScrollView>
-        <ActButton onPress={() => alert('gerando relatorio')}
-        icon={<Icon name='view-list'/>} buttonColor='red'/>
+        <ActionButton onPress={() => alert('gerando relatorio')}
+        icon={<Icon name='show-chart' style={{color: 'white'}}/>} buttonColor={Color.color.AccentColor}/>
       </HeaderView>
     );
   }
@@ -230,6 +287,13 @@ var styles = StyleSheet.create({
     },
     iconLocation: {
       color: 'red'
+    },
+    placeholder: {
+      width: 50,
+      height: 50,
+      borderRadius: 50/2,
+      alignSelf: 'center',
+      margin: 5
     }
 });
 

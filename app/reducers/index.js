@@ -1,5 +1,6 @@
 import {combineReducers} from 'redux';
 import currentDate from './currentDate';
+import currentMonth from './currentMonth';
 import fetchData from './fetchData';
 import jobReducer from './job';
 import navigation from './navigation';
@@ -10,6 +11,7 @@ import user from './user';
 
 const reducers = combineReducers({
   currentDate: currentDate,
+  currentMonth: currentMonth,
   fetchData: fetchData,
   jobReducer: jobReducer,
   navigation: navigation,

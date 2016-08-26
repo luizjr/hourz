@@ -10,13 +10,13 @@ import {
   connect
 } from 'react-redux';
 import moment from 'moment';
-import {
-  enterpriseSelector
-} from '../../reselect/enterprises';
+import { jobSelector } from '../../reselect/jobs';
 import ActButton from '../../components/common/ActButton';
 import Color from '../../resource/color';
 import getBaseRef from '../../env';
-import EnterprisePointsView from '../../components/EnterprisePointsView';
+import JobPointsView from '../../components/JobPointsView';
+import {setCurrentMonth, cleanCurrentMonth} from '../../actions/currentDate';
+import {pointsOfMonthSelector} from '../../reselect/points';
 
 const database = getBaseRef().database();
 
@@ -42,54 +42,22 @@ class ViewJobPoints extends Component {
     this.setState({
       selectedMonth: month
     });
-
-    this.enterprisePointsRef = database.ref(
-      `enterprise/${this.props.enterprise.key}/points/${today.format('YYYY/MM')}`
-    );
-
-    this.onValue = this.enterprisePointsRef.on('value', async snapshot => {
-      if(snapshot.exists()) {
-        let days = snapshot.val();
-
-        try {
-          for(day in days) {
-            let points = days[day];
-            for (key in points) {
-              let pointRef = database.ref(`points/${key}`);
-              let pointSnap = await pointRef.once('value');
-              this.setState({
-                points: {
-                  ...this.state.points,
-                  [day]: {
-                    ...this.state.points[day],
-                    [key]: pointSnap.val()
-                  }
-                }
-              });
-            }
-          }
-        } catch (e) {
-
-        } finally {
-          console.log(this.state.points);
-        }
-      }
-    });
+    this.props.setCurrentMonth(month);
 
   }
 
   componentWillUnmount() {
-    this.enterprisePointsRef.off('value', this.onValue);
+    this.props.cleanCurrentMonth();
   }
 
   render() {
     return (
       <View style={{flex:1}}>
-        <EnterprisePointsView
-          enterprise={this.props.enterprise}
+        <JobPointsView
+          enterprise={this.props.job}
           month={this.state.selectedMonth}
           navigator={this.props.navigator}
-          points={this.state.points}
+          points={this.props.points}
           user={this.props.user}/>
       </View>
     );
@@ -97,14 +65,19 @@ class ViewJobPoints extends Component {
 }
 
 function mapStateToProps(state, props) {
+  let job = jobSelector(state, props.route.job);
   return {
-    enterprise: enterpriseSelector(state, props.route.enterprise),
-    user: state.user
+    job,
+    user: state.user,
+    points: pointsOfMonthSelector(state, job)
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return {}
+  return {
+    setCurrentMonth: (date) => dispatch(setCurrentMonth(date)),
+    cleanCurrentMonth: () => dispatch(cleanCurrentMonth())
+  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ViewJobPoints);
