@@ -135,7 +135,7 @@ class EnterprisePointsView extends Component {
                     let iconStyle = point.pointType === 'in' ? styles.iconIn : styles.iconOut;
                     let edited = point.edited ? '*': '';
                     return (
-                      <View key={key} style={{
+                      <View key={`${key}-${time}`} style={{
                         flex: 1,
                         flexDirection: 'row',
                         alignItems: 'center',
