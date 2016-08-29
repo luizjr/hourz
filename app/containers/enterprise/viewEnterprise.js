@@ -31,7 +31,7 @@ class ViewEnterprise extends Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.userRefList = {};
     let enterpriseUsersPath = `enterprise/${this.props.enterprise.key}/users`;
     this.enterpriseUsersRef = database.ref(enterpriseUsersPath);

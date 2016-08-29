@@ -1,5 +1,6 @@
 import React, {
-  Component
+  Component,
+  PropTypes
 } from 'react';
 import {
   Text,
@@ -30,7 +31,14 @@ class ViewEnterprisePoints extends Component {
         year: ''
       },
       points: {}
-    }
+    };
+
+    this._viewPoint = this._viewPoint.bind(this);
+    this._loadPoints = this._loadPoints.bind(this);
+  }
+
+  getChildContext() {
+    return { onViewPress: this._viewPoint };
   }
 
   componentDidMount() {
@@ -47,39 +55,53 @@ class ViewEnterprisePoints extends Component {
       `enterprise/${this.props.enterprise.key}/points/${today.format('YYYY/MM')}`
     );
 
-    this.onValue = this.enterprisePointsRef.on('value', async snapshot => {
-      if(snapshot.exists()) {
-        let days = snapshot.val();
-
-        try {
-          for(day in days) {
-            let points = days[day];
-            for (key in points) {
-              let pointRef = database.ref(`points/${key}`);
-              let pointSnap = await pointRef.once('value');
-              this.setState({
-                points: {
-                  ...this.state.points,
-                  [day]: {
-                    ...this.state.points[day],
-                    [key]: pointSnap.val()
-                  }
-                }
-              });
-            }
-          }
-        } catch (e) {
-
-        } finally {
-          console.log(this.state.points);
-        }
-      }
-    });
+    this.enterprisePointsRef.on('value', this._loadPoints);
 
   }
 
   componentWillUnmount() {
-    this.enterprisePointsRef.off('value', this.onValue);
+    this.enterprisePointsRef.off('value', this._loadPoints);
+  }
+
+  async _loadPoints(snapshot) {
+    if(snapshot.exists()) {
+      let days = snapshot.val();
+
+      try {
+        for(let day in days) {
+          let points = days[day];
+          for (let key in points) {
+            let pointRef = database.ref(`points/${key}`);
+            let pointSnap = await pointRef.once('value');
+            this.setState({
+              points: {
+                ...this.state.points,
+                [day]: {
+                  ...this.state.points[day],
+                  [key]: pointSnap.val()
+                }
+              }
+            });
+          }
+        }
+      } catch (e) {
+
+      } finally {
+        console.log(this.state.points);
+      }
+    }
+  }
+
+
+
+
+  /**
+   * Abre o viewModal para visualizar a imagem do ponto
+   * @param  point
+   * @return {void}
+   */
+  _viewPoint(point) {
+    this.props.navigator.push({name: 'pointDetail', point: point});
   }
 
   render() {
@@ -95,6 +117,10 @@ class ViewEnterprisePoints extends Component {
     );
   }
 }
+
+ViewEnterprisePoints.childContextTypes = {
+  onViewPress: PropTypes.func
+};
 
 function mapStateToProps(state, props) {
   return {

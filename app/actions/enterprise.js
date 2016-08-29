@@ -155,8 +155,41 @@ export function loadEnterprises(userId) {
           if (snapshotEnterprise.exists()) {
             let enterprisesEntity = snapshotEnterprise.val();
             enterprisesEntity.employees = {};
+            // dispatch(createEnterpriseReducer(enterprisesEntity));
+            //
+            // let enterpriseUsersPath = `enterprise/${snapshotEnterprise.key}/users`;
+            // let enterpriseUsersRef = database.ref(enterpriseUsersPath);
+            // let usersSnapshot = await enterpriseUsersRef.once('value');
+            // if(usersSnapshot.exists()) {
+            //   let users = snapshot.val();
+            //   for (userKey in users) {
+            //     let userRef = database.ref(`profile/${userKey}`);
+            //     let userSnapshot = await userRef.once('value');
+            //     if(userSnapshot.exists()) {
+            //       dispatch(addEmployee({
+            //         enterprise: enterprisesEntity,
+            //         user: userSnapshot.val(),
+            //         key: userSnapshot.key
+            //       }));
+            //     }
+            //
+            //   }
+
+              // this.userRefList = {
+              //   ...this.userRefList,
+              //   [key]: {
+              //     ref: userRef,
+              //     onChange: userRef.on('value', userSnap => {
+              //       this.props.addEmployee({
+              //         enterprise: this.props.enterprise,
+              //         user: userSnap.val(),
+              //         key: userSnap.key
+              //       });
+              //     })
+              //   }
+              // };
+            // }
             // enterprisesEntity.employees = await getEnterpriseUsers(enterprisesEntity);
-            console.log(enterprisesEntity);
             enterprisesArray.push(enterprisesEntity);
           }
         }
@@ -170,6 +203,16 @@ export function loadEnterprises(userId) {
 
 }
 
+function getUsersIterator(users) {
+  let usersList = [];
+  for (let userKey in users) {
+    let userRef = database.ref(`profile/${userKey}`);
+    let currentUser = userRef.once('value');
+    usersList.push(currentUser);
+  }
+  return usersList;
+}
+
 export function addEmployee({enterprise, user, key}) {
   return {
     type: 'ADD_EMPLOYEE',
@@ -180,6 +223,12 @@ export function addEmployee({enterprise, user, key}) {
         key
       }
     }
+  };
+}
+
+export function loadEmployees(userid) {
+  return dispatch => {
+
   };
 }
 

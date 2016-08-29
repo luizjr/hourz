@@ -15,7 +15,7 @@ import Color from '../resource/color';
 import Typo from '../resource/typography';
 import ActionButton from 'react-native-action-button';
 
-class EnterprisePointsView extends Component {
+class JobPointsView extends Component {
 
   constructor(props) {
     super(props);
@@ -50,16 +50,16 @@ class EnterprisePointsView extends Component {
     });
   }
 
-  _onViewPress() {
-    this.context.onViewPress && this.context.onViewPress(this.props.point)
+  _onViewPress(point) {
+    this.context.onViewPress && this.context.onViewPress(point)
   }
 
-  _onEditPress() {
-    this.context.onEditPress && this.context.onEditPress(this.props.point)
+  _onEditPress(point) {
+    this.context.onEditPress && this.context.onEditPress(point)
   }
 
-  _onLocationPress() {
-    this.context.onLocationPress && this.context.onLocationPress(this.props.point)
+  _onLocationPress(point) {
+    this.context.onLocationPress && this.context.onLocationPress(point)
   }
 
   renderRow(value, idSec, idRow) {
@@ -107,19 +107,19 @@ class EnterprisePointsView extends Component {
                 <View style={styles.buttonsGroupWrapper}>
 
                   {/*botão de localização*/}
-                  <Touchable
-                    onPress={this._onLocationPress.bind(this)}
+                  {/* <Touchable
+                    onPress={this._onLocationPress.bind(this, point)}
                   >
                     <View style={styles.button}>
                       <Icon
                         name="my-location"
                         style={[styles.icon, styles.iconLocation]} />
                     </View>
-                  </Touchable>
+                  </Touchable> */}
 
                   {/*botão de editar*/}
                   <Touchable
-                    onPress={this._onEditPress.bind(this)}
+                    onPress={this._onEditPress.bind(this, point)}
                   >
                     <View style={styles.button}>
                       <Icon name="edit" style={styles.icon} />
@@ -128,7 +128,7 @@ class EnterprisePointsView extends Component {
 
                   {/*Botão de visualização*/}
                   <Touchable
-                    onPress={this._onViewPress.bind(this)}
+                    onPress={this._onViewPress.bind(this, point)}
                   >
                     <View style={styles.button}>
                       <Icon name="remove-red-eye" style={styles.icon} />
@@ -170,7 +170,7 @@ class EnterprisePointsView extends Component {
   }
 }
 
-EnterprisePointsView.propTypes = {
+JobPointsView.propTypes = {
   enterprise: PropTypes.object,
   month: PropTypes.shape({
     month: PropTypes.any,
@@ -180,7 +180,7 @@ EnterprisePointsView.propTypes = {
   points: PropTypes.object
 };
 
-EnterprisePointsView.defaultProps = {
+JobPointsView.defaultProps = {
   enterprise: {
     employees: []
   },
@@ -193,7 +193,7 @@ EnterprisePointsView.defaultProps = {
   }
 }
 
-EnterprisePointsView.contextTypes = {
+JobPointsView.contextTypes = {
   onEditPress: PropTypes.func,
   onViewPress: PropTypes.func,
   onLocationPress: PropTypes.func,
@@ -247,4 +247,4 @@ var styles = StyleSheet.create({
     }
 });
 
-export default EnterprisePointsView;
+export default JobPointsView;

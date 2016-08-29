@@ -52,17 +52,10 @@ class EnterprisePointsView extends Component {
     });
   }
 
-  _onViewPress() {
-    this.context.onViewPress && this.context.onViewPress(this.props.point)
+  _onViewPress(point) {
+    this.context.onViewPress && this.context.onViewPress(point)
   }
 
-  _onEditPress() {
-    this.context.onEditPress && this.context.onEditPress(this.props.point)
-  }
-
-  _onLocationPress() {
-    this.context.onLocationPress && this.context.onLocationPress(this.props.point)
-  }
 
   renderRow(value, idSec, idRow) {
     let points = Object.keys(this.props.points[value]);
@@ -155,7 +148,7 @@ class EnterprisePointsView extends Component {
                         <View style={styles.buttonsGroupWrapper}>
 
                           {/*botão de localização*/}
-                          <Touchable
+                          {/* <Touchable
                             onPress={this._onLocationPress.bind(this)}
                           >
                             <View style={styles.button}>
@@ -163,11 +156,11 @@ class EnterprisePointsView extends Component {
                                 name="my-location"
                                 style={[styles.icon, styles.iconLocation]} />
                             </View>
-                          </Touchable>
+                          </Touchable> */}
 
                           {/*Botão de visualização*/}
                           <Touchable
-                            onPress={this._onViewPress.bind(this)}
+                            onPress={this._onViewPress.bind(this, point)}
                           >
                             <View style={styles.button}>
                               <Icon name="remove-red-eye" style={styles.icon} />
@@ -237,9 +230,7 @@ EnterprisePointsView.defaultProps = {
 }
 
 EnterprisePointsView.contextTypes = {
-  onEditPress: PropTypes.func,
-  onViewPress: PropTypes.func,
-  onLocationPress: PropTypes.func,
+  onViewPress: PropTypes.func
 }
 
 // Estilo do componente

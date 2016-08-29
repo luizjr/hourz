@@ -1,5 +1,6 @@
 import React, {
-  Component
+  Component,
+  PropTypes
 } from 'react';
 import {
   Text,
@@ -30,7 +31,13 @@ class ViewJobPoints extends Component {
         year: ''
       },
       points: {}
-    }
+    };
+
+    this._viewPoint = this._viewPoint.bind(this);
+  }
+
+  getChildContext() {
+    return { onViewPress: this._viewPoint };
   }
 
   componentDidMount() {
@@ -50,6 +57,15 @@ class ViewJobPoints extends Component {
     this.props.cleanCurrentMonth();
   }
 
+  /**
+   * Abre o viewModal para visualizar a imagem do ponto
+   * @param  point
+   * @return {void}
+   */
+  _viewPoint(point) {
+    this.props.navigator.push({name: 'pointDetail', point: point});
+  }
+
   render() {
     return (
       <View style={{flex:1}}>
@@ -63,6 +79,10 @@ class ViewJobPoints extends Component {
     );
   }
 }
+
+ViewJobPoints.childContextTypes = {
+  onViewPress: PropTypes.func
+};
 
 function mapStateToProps(state, props) {
   let job = jobSelector(state, props.route.job);

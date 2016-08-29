@@ -25,6 +25,7 @@ import {
   connect
 } from 'react-redux';
 
+import EnterpriseHomeView from '../../components/EnterpriseHomeView';
 import * as HBStyleSheet  from '../../components/common/HBStyleSheet';
 import ProgressBar        from '../../components/common/ProgressBar';
 import EnterpriseList     from '../../components/EnterpriseList';
@@ -129,17 +130,16 @@ class HomeEnterprise extends Component {
     //     </View>
     //   )
     // }
-
+    console.log(this.props.navigator);
     return (
-      <HeaderView
-        title="Minhas Empresas"
-        navigator={this.props.navigator}
-      >
         <View style={styles.container}>
-            <EnterpriseList enterprises={this.props.enterprises} />
+            <EnterpriseHomeView
+              enterprises={this.props.enterprises}
+              navigator={this.props.navigator}
+              route={this.props.route}
+              />
+            {this._getActionButton()}
         </View>
-        {this._getActionButton()}
-      </HeaderView>
     );
   }
 

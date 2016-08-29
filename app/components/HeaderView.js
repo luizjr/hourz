@@ -7,6 +7,22 @@ import Color from '../resource/color';
 class HeaderView extends Component {
 
   _getLeftItem() {
+    console.log(this.props.route);
+    if(this.props.route) {
+      if(this.props.route.name ==='home') {
+        return {
+          layout: 'icon',
+          title: 'Menu',
+          /**
+           * Ao passar um numero maior que zero muda
+           * o icone indicando que á notificações
+           */
+          icon: 0 ?
+            require('../resource/img/hamburger-unread.png') : require('../resource/img/hamburger.png'),
+          onPress: () => this.context.openDrawer && this.context.openDrawer(),
+        };
+      }
+    }
     if (this.props.navigator.getCurrentRoutes().length > 1) {
       return {
         layout: 'icon',

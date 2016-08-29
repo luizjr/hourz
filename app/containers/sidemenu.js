@@ -39,11 +39,17 @@ class SideMenu extends Component {
     super(props);
 
     this.state = {
-      isFetching: false
+      isFetching: false,
+      tab: 'home'
     }
     // vincula as funções ao componente
     this.renderNavigationView = this.renderNavigationView.bind(this);
     this.openDrawer = this.openDrawer.bind(this);
+    this._switchTab = this._switchTab.bind(this);
+  }
+
+  _switchTab(tab) {
+    this.setState({tab});
   }
 
   /**
@@ -102,13 +108,13 @@ class SideMenu extends Component {
    * @return {ReactElement}
    */
   renderView() {
-    switch (this.props.navigation.tab) {
+    switch (this.state.tab) {
       case 'home':
         return <Home navigator={this.props.navigator} />
      case 'profile':
         return <Profile navigator={this.props.navigator} />
      case 'enterprise':
-       return <HomeEnterprise navigator={this.props.navigator} />
+       return <HomeEnterprise route={this.props.route} navigator={this.props.navigator} />
      case 'job':
        return <HomeJob navigator={this.props.navigator} />
     //  case 'report':
@@ -127,9 +133,9 @@ class SideMenu extends Component {
    */
   onTabSelect(tab) {
     // se a tab mudou, altera a tab
-    if (this.props.navigation.tab !== tab) {
+    if (this.state.tab !== tab) {
       // dispara a action
-      this.props.switchTab(tab);
+      this._switchTab(tab);
     }
     // fecha o drawer após a ação
     this.refs.drawer.closeDrawer();
@@ -173,38 +179,38 @@ class SideMenu extends Component {
         </Image>
 
         <MenuItem
-          title="Meus Pontos"
-          selected={this.props.navigation.tab === 'home'}
+          title="Registro de Ponto"
+          selected={this.state.tab === 'home'}
           onPress={this.onTabSelect.bind(this, 'home')} />
 
         <MenuItem
           title="Minhas Empresas"
-          icon="work"
-          selected={this.props.navigation.tab === 'enterprise'}
+          icon="business"
+          selected={this.state.tab === 'enterprise'}
           onPress={this.onTabSelect.bind(this, 'enterprise')} />
 
           <MenuItem
             title="Meus Trabalhos"
             icon="work"
-            selected={this.props.navigation.tab === 'job'}
+            selected={this.state.tab === 'job'}
             onPress={this.onTabSelect.bind(this, 'job')} />
 
         <MenuItem
           title="Perfil"
           icon="person"
-          selected={this.props.navigation.tab === 'profile'}
+          selected={this.state.tab === 'profile'}
           onPress={this.onTabSelect.bind(this, 'profile')} />
 
           {/*<MenuItem
             title="Relatórios"
             icon="equalizer"
-            selected={this.props.navigation.tab === 'report'}
+            selected={this.state.tab === 'report'}
             onPress={this.onTabSelect.bind(this, 'report')} />
 
           <MenuItem
             title="Configurações"
             icon="settings"
-            selected={this.props.navigation.tab === 'settings'}
+            selected={this.state.tab === 'settings'}
             onPress={this.onTabSelect.bind(this, 'settings')} />*/}
 
         <MenuItem
@@ -280,7 +286,7 @@ const styles = StyleSheet.create({
 function mapStateToProps(state) {
   return {
     currentDate: state.currentDate,
-    navigation: state.navigation,
+    // navigation: state.navigation,
     user: state.user
   }
 }
@@ -292,7 +298,7 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    switchTab: (tab) => dispatch(switchTab(tab)),
+    // switchTab: (tab) => dispatch(switchTab(tab)),
     loadPoints: (date, userId) => dispatch(loadPoints(date, userId)),
     loadJobs: (userId) => dispatch(loadJobs(userId)),
     loadEnterprises: (userId) => dispatch(loadEnterprises(userId)),

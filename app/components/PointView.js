@@ -53,7 +53,6 @@ class PointView extends Component {
 
     // Gera o base64 da imagem
     let base64string = `data:${picture.type};base64,${picture.data}`;
-
     // precarrega a imagem
     // let prefetchTask = Image.prefetch(base64string);
 

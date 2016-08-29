@@ -39,7 +39,8 @@ class HourzNavigator extends Component {
 
     this.state = {
       navigator: null,
-      route: null
+      route: null,
+      didFocus: false
     };
 
     //vincula as funções com o componente
@@ -142,7 +143,7 @@ class HourzNavigator extends Component {
               // No caso do IOS, faz a transição da esquerda pra direita
               return Navigator.SceneConfigs.FloatFromRight;
             }}
-            initialRoute={{}}
+            initialRoute={{name:'home'}}
             renderScene={this.renderScene}
           />
         </View>
@@ -162,7 +163,9 @@ class HourzNavigator extends Component {
           case 'signup':
             return (<SignUp route={route} navigator={navigator} />);
           case 'home':
-            return (<SideMenu route={route} navigator={navigator} />);
+            return (<SideMenu ref={c => {
+              this.sidemenu = c;
+            }} route={route} navigator={navigator} />);
           case 'pointDetail':
             return (<PointView route={route} navigator={navigator} />);
           case 'new_enterprise':
@@ -173,9 +176,8 @@ class HourzNavigator extends Component {
             return (<ViewEnterprise route={route} navigator={navigator} />);
           case 'view_enterprise_points':
             return (<ViewEnterprisePoints route={route} navigator={navigator} />);
-            case 'view_job':
-              return (<ViewJobPoints route={route} navigator={navigator} />);
-
+          case 'view_job':
+            return (<ViewJobPoints route={route} navigator={navigator} />);
           default:
             // se o usuário está logado, retorna o sidemenu,
             // senão, retorna a tela de login
@@ -215,5 +217,15 @@ function mapStateToProps(state) {
     user: state.user
   };
 }
+function mapDispatchToProps(dispatch) {
+  return {
+    refreshNavigator: () => dispatch(
+      () => {
+        return {
+          type: 'REFRESH_NAVIGATOR'
+        };
+      })
+  }
+}
 
-export default connect(mapStateToProps)(HourzNavigator);
+export default connect(mapStateToProps, mapDispatchToProps)(HourzNavigator);

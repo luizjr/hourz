@@ -22,6 +22,11 @@ export default function navigation(
       return { tab: action.payload };
     case 'RESET_AUTH':
       return initialState;
+    case 'REFRESH_NAVIGATOR':
+      return {
+        ...state,
+        refresh: true
+      };
     default:
       return state;
   }
