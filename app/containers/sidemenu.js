@@ -15,6 +15,8 @@ import ProgressBar from '../components/common/ProgressBar';
 import Home from './home';
 import Profile from './profile';
 import TabsEnterprise from './enterprise/TabsEnterprise';
+import HomeEnterprise from './enterprise/homeEnterprise';
+import HomeJob from './job/homeJob';
 // import Settings from './settings';
 // import Report from './report';
 import { switchTab } from '../actions/navigation';
@@ -106,7 +108,9 @@ class SideMenu extends Component {
      case 'profile':
         return <Profile navigator={this.props.navigator} />
      case 'enterprise':
-       return <TabsEnterprise navigator={this.props.navigator} />
+       return <HomeEnterprise navigator={this.props.navigator} />
+     case 'job':
+       return <HomeJob navigator={this.props.navigator} />
     //  case 'report':
     //     return <Report navigator={this.props.navigator} />
       // case 'settings':
@@ -169,21 +173,27 @@ class SideMenu extends Component {
         </Image>
 
         <MenuItem
-          title="Home"
+          title="Meus Pontos"
           selected={this.props.navigation.tab === 'home'}
           onPress={this.onTabSelect.bind(this, 'home')} />
 
         <MenuItem
-          title="Profile"
+          title="Minhas Empresas"
+          icon="work"
+          selected={this.props.navigation.tab === 'enterprise'}
+          onPress={this.onTabSelect.bind(this, 'enterprise')} />
+
+          <MenuItem
+            title="Meus Trabalhos"
+            icon="work"
+            selected={this.props.navigation.tab === 'job'}
+            onPress={this.onTabSelect.bind(this, 'job')} />
+
+        <MenuItem
+          title="Perfil"
           icon="person"
           selected={this.props.navigation.tab === 'profile'}
           onPress={this.onTabSelect.bind(this, 'profile')} />
-
-          <MenuItem
-            title="Empresas"
-            icon="work"
-            selected={this.props.navigation.tab === 'enterprise'}
-            onPress={this.onTabSelect.bind(this, 'enterprise')} />
 
           {/*<MenuItem
             title="Relatórios"

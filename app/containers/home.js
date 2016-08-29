@@ -402,7 +402,7 @@ var styles = HBStyleSheet.create({
     flex: 1,
   },
   clockContainer: {
-    flex: 4
+    flex: 2
   },
   pointListContainer: {
     flex: 9

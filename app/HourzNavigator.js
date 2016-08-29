@@ -17,8 +17,8 @@ import NewEnterprise from './containers/enterprise/newEnterprise';
 import EditEnterprise from './containers/enterprise/editEnterprise';
 import ViewEnterprise from './containers/enterprise/viewEnterprise';
 import ViewEnterprisePoints from './containers/enterprise/viewEnterprisePoints';
-import ViewJob from './containers/enterprise/viewJob';
-import ViewJobPoints from './containers/enterprise/viewJobPoints';
+import ViewJob from './containers/job/viewJob';
+import ViewJobPoints from './containers/job/viewJobPoints';
 
 /**
  * Componente que cria o navigator e implementa as funções
